@@ -44,18 +44,19 @@
 # else:
 #     print("lose")
 
+
 def checkTemperatures(temperature):
     tempCheck = ""
-    if(temperature>90):
+    if temperature > 90:
         tempCheck = "hot"
         return tempCheck
-    elif (temperature>60):
+    elif temperature > 60:
         tempCheck = "nice"
         return tempCheck
     else:
         return "cold"
 
+
 print(checkTemperatures(95))
 print(checkTemperatures(72))
 print(checkTemperatures(40))
-

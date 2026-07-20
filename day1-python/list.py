@@ -27,9 +27,6 @@
 # print(len(longhorn_points))
 # print(len(opponent_points))
 
-grid = [
-    [1, 2],
-    [3, 4]
-]
+grid = [[1, 2], [3, 4]]
 print(grid[0])
 print(grid[1][0])

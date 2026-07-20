@@ -7,6 +7,4 @@ prices = [4, 9, 2]
 quantities = [2, 1, 5]
 
 for price, quantity in zip(prices, quantities):
-    print(price*quantity)
-
-
+    print(price * quantity)

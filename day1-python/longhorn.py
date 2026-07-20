@@ -42,7 +42,7 @@ opponent_points.append(7)
 # print(total)
 
 for opp, lhp in zip(opponent_points, longhorn_points):
-    if (lhp > opp):
+    if lhp > opp:
         print("win")
     else:
         print("lose")

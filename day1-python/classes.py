@@ -25,7 +25,7 @@
 #             self.balance -= amount
 #         else:
 #             print("insufficient funds")
-    
+
 #     def transfer(self, other_acct, amount):
 #         if(self.balance >= amount):
 #             self.balance -= amount
