@@ -1,8 +1,8 @@
-#print("hello people")
+# print("hello people")
 
-#print("Burnt orange and white,\nLonghorns stand with pride and might,\nHook em, Texas fight!")
+# print("Burnt orange and white,\nLonghorns stand with pride and might,\nHook em, Texas fight!")
 
-#print("  @..@\n (----)\n(>____<)\n^^~~~~^^")
+# print("  @..@\n (----)\n(>____<)\n^^~~~~^^")
 
 # student_name = "Alex"
 

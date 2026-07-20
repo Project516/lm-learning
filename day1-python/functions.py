@@ -39,12 +39,11 @@
 # introduce("Bob")
 # cheer()
 
+
 def square(num):
-    """Returns the number squared
-    """
-    return num*num
+    """Returns the number squared"""
+    return num * num
+
 
 print(square(5))
 print(square(square(2)))
-
-

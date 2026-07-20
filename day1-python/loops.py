@@ -24,7 +24,7 @@
 # for n in list:
 #     if n < smallest:
 #         smallest = n
-        
+
 # print(smallest)
 
 guesses = ["cat", "dog", "cat", "bird"]

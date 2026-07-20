@@ -24,6 +24,6 @@
 
 words = ["hi", "hello", "hey", "howdy", "yo"]
 
-big = [ len(word) for word in words]
+big = [len(word) for word in words]
 
 print(big)
