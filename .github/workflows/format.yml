@@ -1,0 +1,55 @@
+name: Format Python
+
+# Run on every push, except pushes to the format branch itself
+# (avoids the workflow re-triggering on its own force pushes).
+on:
+  push:
+    branches-ignore:
+      - format
+
+permissions:
+  contents: write
+
+# Rapid successive pushes shouldn't race each other force-pushing format.
+concurrency:
+  group: format-branch
+  cancel-in-progress: true
+
+jobs:
+  ruff-format:
+    name: Ruff analyze & format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pushed commit
+        uses: actions/checkout@v7
+
+      # args: "--version" makes this step install-only; without it the action
+      # runs `ruff check` by default and could fail the job before the
+      # auto-fix step below gets a chance to run.
+      - name: Install ruff
+        uses: astral-sh/ruff-action@v4.1.0
+        with:
+          args: "--version"
+
+      - name: Analyze with ruff (auto-fix fixable issues)
+        run: ruff check --fix --exit-zero .
+
+      - name: Format with ruff
+        run: ruff format .
+
+      - name: Commit changes as python formatter bot
+        run: |
+          git config user.name "python formatter bot"
+          git config user.email "python-formatter-bot@users.noreply.github.com"
+          # Create/reset the local format branch at the pushed commit,
+          # so it always tracks the latest push.
+          git checkout -B format
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No formatting changes needed."
+          else
+            git commit -m "style: analyze and format python files with ruff"
+          fi
+
+      - name: Force push format branch
+        run: git push --force origin format
