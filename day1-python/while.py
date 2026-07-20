@@ -41,7 +41,7 @@
 list = [1, -2, 3, 4]
 counter = 0
 total = 0
-for len(list) in counter:
+for counter in range(len(list)):
     if(list[counter]>0):
         total += list[counter]
     counter +=1
