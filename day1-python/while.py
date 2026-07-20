@@ -27,10 +27,21 @@
 # print(total)
 
 #task 4
+# list = [1, -2, 3, 4]
+# counter = 0
+# total = 0
+# while (counter < len(list)):
+#     if(list[counter]>0):
+#         total += list[counter]
+#     counter +=1
+
+# print(total)
+
+# task 5
 list = [1, -2, 3, 4]
 counter = 0
 total = 0
-while (counter < len(list)):
+for len(list) in counter:
     if(list[counter]>0):
         total += list[counter]
     counter +=1
