@@ -27,7 +27,7 @@ jobs:
       # runs `ruff check` by default and could fail the job before the
       # auto-fix step below gets a chance to run.
       - name: Install ruff
-        uses: astral-sh/ruff-action@v4
+        uses: astral-sh/ruff-action@v4.1.0
         with:
           args: "--version"
 
