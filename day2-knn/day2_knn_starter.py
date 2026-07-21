@@ -117,9 +117,9 @@ def knn_predict(training, query, k):
     return best_label
 
 
-print("K=1:", knn_predict(training, [5.0, 1.7], 1))
-print("K=3:", knn_predict(training, [5.0, 1.7], 3))
-print("K=5:", knn_predict(training, [5.0, 1.7], 5))
+# print("K=1:", knn_predict(training, [5.0, 1.7], 1))
+# print("K=3:", knn_predict(training, [5.0, 1.7], 3))
+# print("K=5:", knn_predict(training, [5.0, 1.7], 5))
 
 
 # --- Task 7: measure accuracy ------------------------------------------
@@ -134,21 +134,24 @@ test = [
 
 
 def accuracy(training, test, k):
-    """Scores the classifier on flowers it has never seen.
+    """Measures the fraction of test flowers predicted correctly.
 
     Args:
-        training: The 2D list the model learns from.
-        test: A separate 2D list of labeled rows to grade against.
+        training: The rows the model is allowed to learn from.
+        test: Labeled rows the model has never seen.
         k: How many neighbors vote in each prediction.
 
     Returns:
-        The fraction of test flowers predicted correctly, between
-        0.0 (all wrong) and 1.0 (all right).
+        The fraction correct, between 0.0 and 1.0.
     """
-    # TODO (section 7): count how many test rows knn_predict gets
-    # right, then return that as a fraction of all test rows.
-    pass
+    correct = 0
+    for row in test:
+        prediction = knn_predict(training, row, k)        # HINT: knn_predict's guess for this row's features
+        if prediction == row[2]:                 # HINT: did the guess match the true label, row[2]?
+            correct = correct + 1
+    return correct/len(test)                  # HINT: the fraction that were right
 
+print("accuracy at K=3:", accuracy(training, test, 5))
 
 # ======================================================================
 # TESTS - check your own work, no peeking at the solution needed.
