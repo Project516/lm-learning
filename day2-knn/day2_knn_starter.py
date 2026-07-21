@@ -56,15 +56,25 @@ def nearest_label(training, query):
 
     Args:
         training: The 2D list of flower rows [length, width, species].
-        query: The mystery flower's features, like [5.0, 1.7] (no label).
+        query: The mystery flower's features, like [1.5, 0.2] (no label).
 
     Returns:
         The species string of the training flower closest to the query.
     """
-    # TODO: the "best so far" pattern from section 5. Walk the training
-    # list and keep the closest flower seen so far (closer = SMALLER
-    # distance), then return its species.
-    pass
+    best_label = training[0][2]              # assume first flower is closest for now
+    best_dist = distance(training[0], query) # its distance to the mystery flower
+
+    for row in training:
+        d = distance(row, query)                            # HINT: this row's distance to the query
+        if d < best_dist:                             # HINT: closer than the best so far? (smaller wins)
+            best_dist = d                    # yes: remember its distance
+            best_label = row[2]                # and remember this row's species
+            print("new closest:", row[2], "at distance", round(d, 3))
+
+    return best_label
+
+mystery = [4.2, 1.3]                # a short, narrow petal, looks setosa-ish
+print("prediction:", nearest_label(training, mystery))
 
 
 # --- Task 6: K nearest neighbors with voting --------------------------
@@ -295,5 +305,5 @@ def impute_mass(penguins, k):
     pass
 
 
-print("two setosas:", distance(training[0], training[1]))
-print("setosa vs virginica:", distance(training[0], training[10]))
+# print("two setosas:", distance(training[0], training[1]))
+# print("setosa vs virginica:", distance(training[0], training[10]))
