@@ -61,17 +61,18 @@ def nearest_label(training, query):
     Returns:
         The species string of the training flower closest to the query.
     """
-    best_label = training[0][2]              # assume first flower is closest for now
-    best_dist = distance(training[0], query) # its distance to the mystery flower
+    best_label = training[0][2]  # assume first flower is closest for now
+    best_dist = distance(training[0], query)  # its distance to the mystery flower
 
     for row in training:
-        d = distance(row, query)                            # HINT: this row's distance to the query
-        if d < best_dist:                             # HINT: closer than the best so far? (smaller wins)
-            best_dist = d                    # yes: remember its distance
-            best_label = row[2]                # and remember this row's species
+        d = distance(row, query)  # HINT: this row's distance to the query
+        if d < best_dist:  # HINT: closer than the best so far? (smaller wins)
+            best_dist = d  # yes: remember its distance
+            best_label = row[2]  # and remember this row's species
             # print("new closest:", row[2], "at distance", round(d, 3))
 
     return best_label
+
 
 # mystery = [4.2, 1.3]                # a short, narrow petal, looks setosa-ish
 # print("prediction:", nearest_label(training, mystery))
