@@ -151,7 +151,7 @@ def accuracy(training, test, k):
             correct = correct + 1
     return correct/len(test)                  # HINT: the fraction that were right
 
-print("accuracy at K=3:", accuracy(training, test, 5))
+# print("accuracy at K=3:", accuracy(training, test, 5))
 
 # ======================================================================
 # TESTS - check your own work, no peeking at the solution needed.
@@ -239,7 +239,7 @@ def load_iris(filename):
 
 
 # Un-comment once iris.csv sits in this folder (section 9):
-# iris = load_iris("iris.csv")     # -> loaded 150 flowers
+iris = load_iris("iris.csv")     # -> loaded 150 flowers
 
 # On the section 9 page you will then add, right here:
 #   distance_n / knn_n / accuracy_n   (your three functions, upgraded to
