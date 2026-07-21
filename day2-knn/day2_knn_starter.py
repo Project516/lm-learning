@@ -248,6 +248,92 @@ iris = load_iris("iris.csv")     # -> loaded 150 flowers
 #   split_data(data, fraction, seed)  -> train: 120  test: 30
 # Expected: accuracy_n(iris_train, iris_test, 5, 4) is about 0.9667.
 
+def distance_n(row_a, row_b, num_features):
+    """Like distance, but for rows with any number of features.
+
+    Args:
+        row_a: A row whose first num_features items are numbers.
+        row_b: Another row in the same format.
+        num_features: How many leading columns are features.
+
+    Returns:
+        The straight-line distance across those features.
+    """
+    total = 0
+    for i in range(num_features):                 # HINT: not 2 any more, the feature count passed in
+        diff = diff = row_a[i] - row_b[i]
+        total += diff**2
+    return math.sqrt(total)                       # HINT: feature i of row_a minus feature i of row_b (section 4)
+                   # HINT: the square root of the total
+
+def knn_n(training, query, k, num_features):
+    """Like knn_predict, but for rows with any number of features.
+
+    Args:
+        training: Rows of num_features numbers followed by a label.
+        query: The mystery row's features.
+        k: How many nearest neighbors get a vote.
+        num_features: How many leading columns are features.
+
+    Returns:
+        The label that wins the vote (labels live at row[num_features]).
+    """
+    scored = []
+    for row in training:
+        scored.append([distance_n(row, query, num_features), row[num_features]])   # HINT: the label. It sat at row[2] before; where is it now?
+    scored.sort()
+    nearest = []
+    for i in range(k):
+        nearest.append(scored[i][1])               # HINT: the label of the i-th closest pair (section 6)
+    best_label = nearest[0]
+    best_count = 0
+    for label in nearest:
+        c = nearest.count(num_features)                           # HINT: how many votes this label has, with .count()
+        if c > best_count:
+            best_count = c
+            best_label = label
+    return best_label
+
+def accuracy_n(training, test, k, num_features):
+    """Like accuracy, but for rows with any number of features.
+
+    Args:
+        training: The rows the model is allowed to learn from.
+        test: Labeled rows the model has never seen.
+        k: How many neighbors vote in each prediction.
+        num_features: How many leading columns are features.
+
+    Returns:
+        The fraction correct, between 0.0 and 1.0.
+    """
+    correct = 0
+    for row in test:
+        if knn_n(training, row, k, num_features) == row[num_features]:   # HINT: the flower's true label (same index idea as in knn_n)
+            correct = correct + 1
+    return correct/len(test)                            # HINT: the fraction correct
+
+import random
+
+def split_data(data, fraction, seed):
+    """Shuffles a dataset, then splits it into (training, test).
+
+    Args:
+        data: The full list of labeled rows.
+        fraction: The share that goes to training, like 0.8 for 80 percent.
+        seed: Any number; the same seed always gives the same shuffle.
+
+    Returns:
+        Two lists: the training rows, then the test rows.
+    """
+    shuffled = data[:]          # a copy, so we don't wreck the original
+    random.seed(seed)           # same seed = same shuffle, every run
+    random.shuffle(shuffled)
+    cut = int(len(shuffled) * fraction)
+    return shuffled[:cut], shuffled[cut:]
+
+iris_train, iris_test = split_data(iris, 0.8, 42)
+print("train:", len(iris_train), " test:", len(iris_test))    # train: 120  test: 30
+print("iris accuracy, K=5:", accuracy_n(iris_train, iris_test, 5, 4))
 # --- Section 10: when the data is biased ------------------------------
 # No new functions needed - section 10 reuses knn_predict and accuracy
 # on a deliberately skewed version of the fifteen-flower table.
