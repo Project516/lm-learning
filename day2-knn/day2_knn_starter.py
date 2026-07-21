@@ -22,12 +22,13 @@ training = [
     [5.8, 1.8, "virginica"],
     [6.3, 1.8, "virginica"],
     [5.5, 2.1, "virginica"],
-    [5.1, 1.9, "virginica"]
+    [5.1, 1.9, "virginica"],
 ]
 
-print(training[2][2])
-for i in range(len(training)):
-    print(training[i][2])
+# print(training[2][2])
+# for i in range(len(training)):
+#     print(training[i][2])
+
 
 # --- Task 4: write the distance function -----------------------------
 def distance(row_a, row_b):
@@ -42,10 +43,12 @@ def distance(row_a, row_b):
         The straight-line distance between the two flowers' features,
         as a float. Small means similar; 0.0 means identical features.
     """
-    # TODO: straight-line distance over the two feature columns
-    # (index 0 and 1). Build a running total of squared differences,
-    # then square-root it OUTSIDE the loop. Tests are at the bottom.
-    pass
+    total = 0
+    for i in range(2):
+        diff = row_a[i] - row_b[i]
+        total += diff**2
+    return math.sqrt(total)
+
 
 # --- Task 5: nearest neighbor (K = 1) ---------------------------------
 def nearest_label(training, query):
@@ -62,6 +65,7 @@ def nearest_label(training, query):
     # list and keep the closest flower seen so far (closer = SMALLER
     # distance), then return its species.
     pass
+
 
 # --- Task 6: K nearest neighbors with voting --------------------------
 def knn_predict(training, query, k):
@@ -81,6 +85,7 @@ def knn_predict(training, query, k):
     # return whichever label appears most (.count() helps). Tests below.
     pass
 
+
 # --- Task 7: measure accuracy ------------------------------------------
 test = [
     [1.5, 0.2, "setosa"],
@@ -88,8 +93,9 @@ test = [
     [4.2, 1.3, "versicolor"],
     [4.4, 1.4, "versicolor"],
     [6.1, 2.3, "virginica"],
-    [5.7, 2.0, "virginica"]
+    [5.7, 2.0, "virginica"],
 ]
+
 
 def accuracy(training, test, k):
     """Scores the classifier on flowers it has never seen.
@@ -113,6 +119,7 @@ def accuracy(training, test, k):
 # Un-comment each block as you finish that function and re-run the file.
 # Each line prints PASS or FAIL. Aim for PASS all the way down.
 # ======================================================================
+
 
 def check(label, got, expected):
     """Prints PASS/FAIL for one test (provided - you don't edit this)."""
@@ -160,6 +167,7 @@ def close_enough(got, target):
 # And one catch: everything from a file is TEXT, so float() must turn
 # "5.1" into the number 5.1 before you can do math with it.
 
+
 def load_iris(filename):
     """Reads the iris CSV into a 2D list of flowers.
 
@@ -172,23 +180,24 @@ def load_iris(filename):
     """
     data = []
 
-    f = open(filename)              # open the file...
-    lines = f.readlines()           # ...grab every line...
-    f.close()                       # ...and close it politely
+    f = open(filename)  # open the file...
+    lines = f.readlines()  # ...grab every line...
+    f.close()  # ...and close it politely
 
-    for line in lines[1:]:          # lines[0] is the header, skip it
+    for line in lines[1:]:  # lines[0] is the header, skip it
         parts = line.strip().split(",")
 
-        sepal_length = float(parts[0])   # file text -> numbers
-        sepal_width  = float(parts[1])
+        sepal_length = float(parts[0])  # file text -> numbers
+        sepal_width = float(parts[1])
         petal_length = float(parts[2])
-        petal_width  = float(parts[3])
-        species      = parts[4]
+        petal_width = float(parts[3])
+        species = parts[4]
 
         data.append([sepal_length, sepal_width, petal_length, petal_width, species])
 
     print("loaded", len(data), "flowers")
     return data
+
 
 # Un-comment once iris.csv sits in this folder (section 9):
 # iris = load_iris("iris.csv")     # -> loaded 150 flowers
@@ -215,6 +224,7 @@ def load_iris(filename):
 # `ratings`, `iris`, `distance_n` - add those from the page first.)
 # ======================================================================
 
+
 # --- A.5, Part 3: precision and recall --------------------------------
 def precision_recall(pairs, species):
     """Precision and recall for one species, from [true, predicted] pairs.
@@ -225,15 +235,18 @@ def precision_recall(pairs, species):
     """
     pass
 
+
 # --- B.1: KNN regression ----------------------------------------------
 def knn_regress(training, query, k, num_features):
     """Predict a number: knn_n, but AVERAGE the k nearest neighbors'
     numbers (at row[num_features]) instead of voting on labels."""
     pass
 
+
 def mean_error(training, test, k, num_features):
     """Mean absolute error: average size of the miss over the test set."""
     pass
+
 
 # --- B.2: draw the decision map ---------------------------------------
 def draw_map(training, k):
@@ -241,11 +254,13 @@ def draw_map(training, k):
     Petal width high->low (rows), petal length low->high (cols)."""
     pass
 
+
 # --- B.3: anomaly detection -------------------------------------------
 def strangeness(training, query, num_features):
     """Smallest distance_n from the query to any training flower
     (the 'best so far' scan, hunting a minimum)."""
     pass
+
 
 # --- B.4: condensed nearest neighbors ---------------------------------
 def condense(training, num_features):
@@ -254,23 +269,31 @@ def condense(training, num_features):
     nothing; return the store."""
     pass
 
+
 # --- B.5: KNN recommender ---------------------------------------------
 def taste_distance(a, b):
     """Distance between two people, ONLY on movies they have both rated
     (skip any position where either rating is 0)."""
     pass
 
+
 def nearest_people(ratings, me_name, k):
     """The k people whose ratings are closest to me_name's."""
     pass
+
 
 def recommend(ratings, me_name, k):
     """For each movie I have not seen (0), average my k nearest people's
     ratings; return the unseen movie with the highest predicted score."""
     pass
 
+
 # --- B.6: KNN imputation ----------------------------------------------
 def impute_mass(penguins, k):
     """Fill the one penguin whose body_mass is None by averaging the k
     nearest COMPLETE penguins, compared on the first three features."""
     pass
+
+
+print("two setosas:", distance(training[0], training[1]))
+print("setosa vs virginica:", distance(training[0], training[10]))

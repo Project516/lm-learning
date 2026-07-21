@@ -22,8 +22,7 @@
 import math
 
 point_a = [1.4, 0.2]
-point_b = [1.4, 0.2]    # almost the same flower as point_a
+point_b = [1.4, 0.2]  # almost the same flower as point_a
 
-d = math.sqrt((point_a[0] - point_b[0])**2 + (point_a[1] - point_b[1])**2)
+d = math.sqrt((point_a[0] - point_b[0]) ** 2 + (point_a[1] - point_b[1]) ** 2)
 print("distance between two similar flowers:", d)
-
