@@ -413,10 +413,11 @@ def manhattan(row_a, row_b):
         The Manhattan (city-grid) distance between the two flowers.
     """
     total = 0
-    for i in range(2):              # same two feature columns
+    for i in range(2):  # same two feature columns
         diff = row_a[i] - row_b[i]
-        total = total + abs(diff)   # add the positive difference; no squaring
-    return total                    # no square root at the end, either
+        total = total + abs(diff)  # add the positive difference; no squaring
+    return total  # no square root at the end, either
+
 
 def knn_predict_manhattan(training, query, k):
     """Predicts a species by letting the K nearest flowers vote.
@@ -455,9 +456,133 @@ def knn_predict_manhattan(training, query, k):
             best_label = label
     return best_label
 
-print("K=1:", knn_predict_manhattan(training, [5.0, 1.7], 1))   # virginica
-print("K=3:", knn_predict_manhattan(training, [5.0, 1.7], 3))   # versicolor
-print("K=5:", knn_predict_manhattan(training, [5.0, 1.7], 5))   # versicolor
+
+# print("K=1:", knn_predict_manhattan(training, [5.0, 1.7], 1))   # virginica
+# print("K=3:", knn_predict_manhattan(training, [5.0, 1.7], 3))   # versicolor
+# print("K=5:", knn_predict_manhattan(training, [5.0, 1.7], 5))   # versicolor
+
+
+def feature_bounds(data, num_features):
+    """Finds the min and max of each feature column in a dataset."""
+    bounds = []
+    for i in range(num_features):
+        low = data[0][i]
+        high = data[0][i]
+        for row in data:
+            if row[i] < low:
+                low = row[i]
+            if row[i] > high:
+                high = row[i]
+        bounds.append([low, high])
+    return bounds
+
+
+def normalize(data, bounds):
+    """Rescales every feature to 0..1 using the given bounds.
+
+    Feature columns are scaled; any extra columns (like the species
+    label) are copied over unchanged.
+    """
+    num_features = len(bounds)
+    result = []
+    for row in data:
+        new_row = []
+        for i in range(num_features):
+            low = bounds[i][0]
+            high = bounds[i][1]
+            new_row.append((row[i] - low) / (high - low))
+        for j in range(num_features, len(row)):
+            new_row.append(row[j])  # keep the label as-is
+        result.append(new_row)
+    return result
+
+
+bounds = feature_bounds(training, 2)
+print("bounds:", bounds)  # [[1.3, 6.3], [0.2, 2.5]]
+
+normalized_training = normalize(training, bounds)
+print("first normalized flower:", normalized_training[0])  # about [0.02, 0.0, 'setosa']
+
+import math
+
+
+def distance_n(row_a, row_b, num_features):
+    total = 0
+    for i in range(num_features):
+        diff = row_a[i] - row_b[i]
+        total = total + diff * diff
+    return math.sqrt(total)
+
+
+def knn_n(training, query, k, num_features):
+    scored = []
+    for row in training:
+        scored.append([distance_n(row, query, num_features), row[num_features]])
+    scored.sort()
+    nearest = []
+    for i in range(k):
+        nearest.append(scored[i][1])
+    best_label = nearest[0]
+    best_count = 0
+    for label in nearest:
+        c = nearest.count(label)
+        if c > best_count:
+            best_count = c
+            best_label = label
+    return best_label
+
+
+# The same flowers, plus a big-scale, meaningless third feature.
+noise_training = [
+    [1.4, 0.2, 500, "setosa"],
+    [1.3, 0.2, 900, "setosa"],
+    [1.5, 0.2, 300, "setosa"],
+    [1.7, 0.4, 1500, "setosa"],
+    [1.4, 0.3, 700, "setosa"],
+    [4.5, 1.5, 200, "versicolor"],
+    [4.7, 1.4, 1300, "versicolor"],
+    [4.0, 1.3, 600, "versicolor"],
+    [4.6, 1.5, 1000, "versicolor"],
+    [3.9, 1.1, 400, "versicolor"],
+    [6.0, 2.5, 1400, "virginica"],
+    [5.8, 1.8, 800, "virginica"],
+    [6.3, 1.8, 1100, "virginica"],
+    [5.5, 2.1, 250, "virginica"],
+    [5.1, 1.9, 1200, "virginica"],
+]
+noise_test = [
+    [1.5, 0.2, 1250, "setosa"],
+    [1.6, 0.3, 650, "setosa"],
+    [4.2, 1.3, 950, "versicolor"],
+    [4.4, 1.4, 350, "versicolor"],
+    [6.1, 2.3, 1450, "virginica"],
+    [5.7, 2.0, 150, "virginica"],
+]
+
+
+def accuracy_n(training, test, k, num_features):
+    correct = 0
+    for row in test:
+        if knn_n(training, row, k, num_features) == row[num_features]:
+            correct = correct + 1
+    return correct / len(test)
+
+
+# Before scaling: the giant noise feature dominates the distance.
+print("raw accuracy with noise feature:", accuracy_n(noise_training, noise_test, 3, 3))
+
+# After scaling: every feature is squished to 0..1, so noise can't dominate.
+noise_bounds = feature_bounds(noise_training, 3)
+print(
+    "normalized accuracy with noise feature:",
+    accuracy_n(
+        normalize(noise_training, noise_bounds),
+        normalize(noise_test, noise_bounds),
+        3,
+        3,
+    ),
+)
+
 
 # --- A.5, Part 3: precision and recall --------------------------------
 def precision_recall(pairs, species):
