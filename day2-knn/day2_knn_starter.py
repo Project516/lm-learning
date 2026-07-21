@@ -69,12 +69,12 @@ def nearest_label(training, query):
         if d < best_dist:                             # HINT: closer than the best so far? (smaller wins)
             best_dist = d                    # yes: remember its distance
             best_label = row[2]                # and remember this row's species
-            print("new closest:", row[2], "at distance", round(d, 3))
+            # print("new closest:", row[2], "at distance", round(d, 3))
 
     return best_label
 
-mystery = [4.2, 1.3]                # a short, narrow petal, looks setosa-ish
-print("prediction:", nearest_label(training, mystery))
+# mystery = [4.2, 1.3]                # a short, narrow petal, looks setosa-ish
+# print("prediction:", nearest_label(training, mystery))
 
 
 # --- Task 6: K nearest neighbors with voting --------------------------
