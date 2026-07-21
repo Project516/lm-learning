@@ -498,10 +498,10 @@ def normalize(data, bounds):
 
 
 bounds = feature_bounds(training, 2)
-print("bounds:", bounds)  # [[1.3, 6.3], [0.2, 2.5]]
+# print("bounds:", bounds)  # [[1.3, 6.3], [0.2, 2.5]]
 
 normalized_training = normalize(training, bounds)
-print("first normalized flower:", normalized_training[0])  # about [0.02, 0.0, 'setosa']
+# print("first normalized flower:", normalized_training[0])  # about [0.02, 0.0, 'setosa']
 
 import math
 
@@ -568,21 +568,105 @@ def accuracy_n(training, test, k, num_features):
     return correct / len(test)
 
 
-# Before scaling: the giant noise feature dominates the distance.
-print("raw accuracy with noise feature:", accuracy_n(noise_training, noise_test, 3, 3))
+# # Before scaling: the giant noise feature dominates the distance.
+# print("raw accuracy with noise feature:", accuracy_n(noise_training, noise_test, 3, 3))
 
-# After scaling: every feature is squished to 0..1, so noise can't dominate.
-noise_bounds = feature_bounds(noise_training, 3)
-print(
-    "normalized accuracy with noise feature:",
-    accuracy_n(
-        normalize(noise_training, noise_bounds),
-        normalize(noise_test, noise_bounds),
-        3,
-        3,
-    ),
-)
+# # After scaling: every feature is squished to 0..1, so noise can't dominate.
+# noise_bounds = feature_bounds(noise_training, 3)
+# print(
+#     "normalized accuracy with noise feature:",
+#     accuracy_n(
+#         normalize(noise_training, noise_bounds),
+#         normalize(noise_test, noise_bounds),
+#         3,
+#         3,
+#     ),
+# )
 
+def knn_predict_weighted(training, query, k):
+    """Like knn_predict, but each neighbor's vote counts 1 / distance.
+
+    Args:
+        training: The 2D list of flower rows [length, width, species].
+        query: The mystery flower's features (no label).
+        k: How many nearest neighbors get a (weighted) vote.
+
+    Returns:
+        The species whose neighbors carry the most total weight.
+    """
+    scored = []
+    for row in training:
+        scored.append([distance(row, query), row[2]])
+    scored.sort()
+
+    neighbors = []
+    for i in range(k):
+        neighbors.append(scored[i])   # keep [distance, label] pairs this time
+
+    # Which labels are even in the running?
+    labels_seen = []
+    for pair in neighbors:
+        if pair[1] not in labels_seen:
+            labels_seen.append(pair[1])
+
+    # Add up each label's weight; closest neighbors contribute most.
+    best_label = labels_seen[0]
+    best_weight = -1
+    for candidate in labels_seen:
+        total = 0
+        for pair in neighbors:
+            if pair[1] == candidate:
+                total = total + 1 / (pair[0] + 0.0000001)
+        if total > best_weight:
+            best_weight = total
+            best_label = candidate
+    return best_label
+
+# print("plain    K=5:", knn_predict(training, [5.1, 1.75], 5))          # versicolor
+# print("weighted K=5:", knn_predict_weighted(training, [5.1, 1.75], 5))
+
+def knn_predict_confident(training, query, k):
+    """Predicts a species by letting the K nearest flowers vote.
+
+    Args:
+        training: The 2D list of flower rows [length, width, species].
+        query: The mystery flower's features (no label).
+        k: How many nearest neighbors get a vote.
+
+    Returns:
+        The species string that wins the vote.
+    """
+    scored = []
+    itemList = []
+    for row in training:
+        d = distance(row, query)
+        scored.append([d, row[2]])  # pair up the distance with this row's label
+
+    scored.sort()
+
+    # print(scored)                             # HINT: sort scored so the closest come first
+
+    nearest_labels = []
+    for i in range(k):
+        nearest_labels.append(
+            scored[i][1]
+        )  # HINT: the label from the i-th closest pair
+
+    best_label = nearest_labels[0]
+    best_count = 0
+    for label in nearest_labels:
+        c = nearest_labels.count(
+            label
+        )  # HINT: count this label's votes among the neighbors
+        if c > best_count:
+            best_count = c
+            best_label = label
+            itemList.append(best_label)
+            itemList.append(best_count/k)
+    return itemList
+
+print(knn_predict_confident(training, [5.0, 1.7], 3))   # ['versicolor', about 0.667]
+print(knn_predict_confident(training, [1.5, 0.2], 3))   # ['setosa', 1.0]
 
 # --- A.5, Part 3: precision and recall --------------------------------
 def precision_recall(pairs, species):
