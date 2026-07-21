@@ -338,6 +338,24 @@ print("iris accuracy, K=5:", accuracy_n(iris_train, iris_test, 5, 4))
 # No new functions needed - section 10 reuses knn_predict and accuracy
 # on a deliberately skewed version of the fifteen-flower table.
 
+# The fair dataset: 5 of each species.
+fair_training = training
+
+# The skewed dataset: setosa and virginica untouched, versicolor almost erased.
+skewed_training = [
+    [1.4, 0.2, "setosa"],
+    [1.3, 0.2, "setosa"],
+    [1.5, 0.2, "setosa"],
+    [1.7, 0.4, "setosa"],
+    [1.4, 0.3, "setosa"],
+    [6.0, 2.5, "virginica"],
+    [5.8, 1.8, "virginica"],
+    [6.3, 1.8, "virginica"],
+    [5.5, 2.1, "virginica"],
+    [5.1, 1.9, "virginica"],
+    [4.5, 1.5, "versicolor"]      # the only versicolor left
+]
+
 
 # ======================================================================
 # OPTIONAL: fast-finisher function stubs (the A ladder + B set)
