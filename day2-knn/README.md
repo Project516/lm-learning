@@ -1,0 +1,1 @@
+https://utcs-mlacademy-2026.vercel.app/day-2-knn-ffdad9/
