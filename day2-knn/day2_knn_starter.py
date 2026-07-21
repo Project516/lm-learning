@@ -80,21 +80,46 @@ def nearest_label(training, query):
 
 # --- Task 6: K nearest neighbors with voting --------------------------
 def knn_predict(training, query, k):
-    """Predicts a species by letting the k closest flowers vote.
+    """Predicts a species by letting the K nearest flowers vote.
 
     Args:
         training: The 2D list of flower rows [length, width, species].
-        query: The mystery flower's features, like [5.0, 1.7] (no label).
-        k: How many nearest neighbors get a vote (1, 3, 5, ...).
+        query: The mystery flower's features (no label).
+        k: How many nearest neighbors get a vote.
 
     Returns:
-        The species string that appears most among the k nearest
-        training flowers.
+        The species string that wins the vote.
     """
-    # TODO (section 6): build [distance, label] pairs for every flower,
-    # sort so the closest come first, take the first k labels, and
-    # return whichever label appears most (.count() helps). Tests below.
-    pass
+    scored = []
+    for row in training:
+        d = distance(row, query)
+        scored.append([d, row[2]])  # pair up the distance with this row's label
+
+    scored.sort()
+
+    # print(scored)                             # HINT: sort scored so the closest come first
+
+    nearest_labels = []
+    for i in range(k):
+        nearest_labels.append(
+            scored[i][1]
+        )  # HINT: the label from the i-th closest pair
+
+    best_label = nearest_labels[0]
+    best_count = 0
+    for label in nearest_labels:
+        c = nearest_labels.count(
+            label
+        )  # HINT: count this label's votes among the neighbors
+        if c > best_count:
+            best_count = c
+            best_label = label
+    return best_label
+
+
+print("K=1:", knn_predict(training, [5.0, 1.7], 1))
+print("K=3:", knn_predict(training, [5.0, 1.7], 3))
+print("K=5:", knn_predict(training, [5.0, 1.7], 5))
 
 
 # --- Task 7: measure accuracy ------------------------------------------
