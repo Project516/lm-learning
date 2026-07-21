@@ -402,7 +402,62 @@ iris_train, iris_test = split_data(iris, 0.8, 42)
 # (Some need data or helpers you set up on that page, e.g. `reg`,
 # `ratings`, `iris`, `distance_n` - add those from the page first.)
 # ======================================================================
+def manhattan(row_a, row_b):
+    """Measures distance by adding the plain, positive feature differences.
 
+    Args:
+        row_a: A flower row like [petal_length, petal_width, species].
+        row_b: Another row in the same format.
+
+    Returns:
+        The Manhattan (city-grid) distance between the two flowers.
+    """
+    total = 0
+    for i in range(2):              # same two feature columns
+        diff = row_a[i] - row_b[i]
+        total = total + abs(diff)   # add the positive difference; no squaring
+    return total                    # no square root at the end, either
+
+def knn_predict_manhattan(training, query, k):
+    """Predicts a species by letting the K nearest flowers vote.
+
+    Args:
+        training: The 2D list of flower rows [length, width, species].
+        query: The mystery flower's features (no label).
+        k: How many nearest neighbors get a vote.
+
+    Returns:
+        The species string that wins the vote.
+    """
+    scored = []
+    for row in training:
+        d = manhattan(row, query)
+        scored.append([d, row[2]])  # pair up the distance with this row's label
+
+    scored.sort()
+
+    # print(scored)                             # HINT: sort scored so the closest come first
+
+    nearest_labels = []
+    for i in range(k):
+        nearest_labels.append(
+            scored[i][1]
+        )  # HINT: the label from the i-th closest pair
+
+    best_label = nearest_labels[0]
+    best_count = 0
+    for label in nearest_labels:
+        c = nearest_labels.count(
+            label
+        )  # HINT: count this label's votes among the neighbors
+        if c > best_count:
+            best_count = c
+            best_label = label
+    return best_label
+
+print("K=1:", knn_predict_manhattan(training, [5.0, 1.7], 1))   # virginica
+print("K=3:", knn_predict_manhattan(training, [5.0, 1.7], 3))   # versicolor
+print("K=5:", knn_predict_manhattan(training, [5.0, 1.7], 5))   # versicolor
 
 # --- A.5, Part 3: precision and recall --------------------------------
 def precision_recall(pairs, species):
