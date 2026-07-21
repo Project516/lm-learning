@@ -151,7 +151,8 @@ def accuracy(training, test, k):
             correct = correct + 1
     return correct/len(test)                  # HINT: the fraction that were right
 
-print("accuracy at K=3:", accuracy(training, test, 5))
+#print("accuracy at K=3:", accuracy(training, test, 5))
+print("nonsense flower:", knn_predict(training, [10.0, 5.0], 3))
 
 # ======================================================================
 # TESTS - check your own work, no peeking at the solution needed.
