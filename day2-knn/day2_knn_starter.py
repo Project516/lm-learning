@@ -117,10 +117,43 @@ def knn_predict(training, query, k):
     return best_label
 
 
+# The fair dataset: 5 of each species.
+fair_training = training
+
+# The skewed dataset: setosa and virginica untouched, versicolor almost erased.
+skewed_training = [
+    [1.4, 0.2, "setosa"],
+    [1.3, 0.2, "setosa"],
+    [1.5, 0.2, "setosa"],
+    [1.7, 0.4, "setosa"],
+    [1.4, 0.3, "setosa"],
+    [6.0, 2.5, "virginica"],
+    [5.8, 1.8, "virginica"],
+    [6.3, 1.8, "virginica"],
+    [5.5, 2.1, "virginica"],
+    [5.1, 1.9, "virginica"],
+    [4.5, 1.5, "versicolor"],  # the only versicolor left
+]
+
+test_set = [
+    [1.5, 0.2, "setosa"],
+    [1.6, 0.3, "setosa"],
+    [4.2, 1.3, "versicolor"],
+    [4.4, 1.4, "versicolor"],
+    [4.6, 1.4, "versicolor"],
+    [6.1, 2.3, "virginica"],
+    [5.7, 2.0, "virginica"],
+]
+
 # print("K=1:", knn_predict(training, [5.0, 1.7], 1))
-# print("K=3:", knn_predict(training, [5.0, 1.7], 3))
+# for i in range(len(test_set)):
+# print("K=3:", knn_predict(fair_training, [test_set[i][0],test_set[i][1]], 3))
+# print("K=3:", knn_predict(skewed_training, [test_set[i][0],test_set[i][1]], 3))
 # print("K=5:", knn_predict(training, [5.0, 1.7], 5))
 
+# for i in range(len(test_set)):
+#         #print("K=3:", knn_predict(fair_training, [test_set[i][0],test_set[i][1]], 3))
+#         print(test_set[i][2], knn_predict(skewed_training, [test_set[i][0],test_set[i][1]], 3))
 
 # --- Task 7: measure accuracy ------------------------------------------
 test = [
@@ -155,7 +188,8 @@ def accuracy(training, test, k):
 
 
 # print("accuracy at K=3:", accuracy(training, test, 5))
-print("nonsense flower:", knn_predict(training, [10.0, 5.0], 3))
+# print("nonsense flower:", knn_predict(training, [10.0, 5.0], 3))
+# print("Accuracy is: ", accuracy(skewed_training, test_set, 3))
 
 # ======================================================================
 # TESTS - check your own work, no peeking at the solution needed.
@@ -238,7 +272,7 @@ def load_iris(filename):
 
         data.append([sepal_length, sepal_width, petal_length, petal_width, species])
 
-    print("loaded", len(data), "flowers")
+    # print("loaded", len(data), "flowers")
     return data
 
 
@@ -351,29 +385,11 @@ def split_data(data, fraction, seed):
 
 
 iris_train, iris_test = split_data(iris, 0.8, 42)
-print("train:", len(iris_train), " test:", len(iris_test))  # train: 120  test: 30
-print("iris accuracy, K=5:", accuracy_n(iris_train, iris_test, 5, 4))
+# print("train:", len(iris_train), " test:", len(iris_test))  # train: 120  test: 30
+# print("iris accuracy, K=5:", accuracy_n(iris_train, iris_test, 5, 4))
 # --- Section 10: when the data is biased ------------------------------
 # No new functions needed - section 10 reuses knn_predict and accuracy
 # on a deliberately skewed version of the fifteen-flower table.
-
-# The fair dataset: 5 of each species.
-fair_training = training
-
-# The skewed dataset: setosa and virginica untouched, versicolor almost erased.
-skewed_training = [
-    [1.4, 0.2, "setosa"],
-    [1.3, 0.2, "setosa"],
-    [1.5, 0.2, "setosa"],
-    [1.7, 0.4, "setosa"],
-    [1.4, 0.3, "setosa"],
-    [6.0, 2.5, "virginica"],
-    [5.8, 1.8, "virginica"],
-    [6.3, 1.8, "virginica"],
-    [5.5, 2.1, "virginica"],
-    [5.1, 1.9, "virginica"],
-    [4.5, 1.5, "versicolor"]      # the only versicolor left
-]
 
 
 # ======================================================================
