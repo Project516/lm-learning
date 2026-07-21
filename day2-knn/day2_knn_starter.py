@@ -146,12 +146,15 @@ def accuracy(training, test, k):
     """
     correct = 0
     for row in test:
-        prediction = knn_predict(training, row, k)        # HINT: knn_predict's guess for this row's features
-        if prediction == row[2]:                 # HINT: did the guess match the true label, row[2]?
+        prediction = knn_predict(
+            training, row, k
+        )  # HINT: knn_predict's guess for this row's features
+        if prediction == row[2]:  # HINT: did the guess match the true label, row[2]?
             correct = correct + 1
-    return correct/len(test)                  # HINT: the fraction that were right
+    return correct / len(test)  # HINT: the fraction that were right
 
-#print("accuracy at K=3:", accuracy(training, test, 5))
+
+# print("accuracy at K=3:", accuracy(training, test, 5))
 print("nonsense flower:", knn_predict(training, [10.0, 5.0], 3))
 
 # ======================================================================
@@ -240,13 +243,14 @@ def load_iris(filename):
 
 
 # Un-comment once iris.csv sits in this folder (section 9):
-iris = load_iris("iris.csv")     # -> loaded 150 flowers
+iris = load_iris("iris.csv")  # -> loaded 150 flowers
 
 # On the section 9 page you will then add, right here:
 #   distance_n / knn_n / accuracy_n   (your three functions, upgraded to
 #                                      take the feature count as an input)
 #   split_data(data, fraction, seed)  -> train: 120  test: 30
 # Expected: accuracy_n(iris_train, iris_test, 5, 4) is about 0.9667.
+
 
 def distance_n(row_a, row_b, num_features):
     """Like distance, but for rows with any number of features.
@@ -260,11 +264,14 @@ def distance_n(row_a, row_b, num_features):
         The straight-line distance across those features.
     """
     total = 0
-    for i in range(num_features):                 # HINT: not 2 any more, the feature count passed in
+    for i in range(num_features):  # HINT: not 2 any more, the feature count passed in
         diff = diff = row_a[i] - row_b[i]
         total += diff**2
-    return math.sqrt(total)                       # HINT: feature i of row_a minus feature i of row_b (section 4)
-                   # HINT: the square root of the total
+    return math.sqrt(
+        total
+    )  # HINT: feature i of row_a minus feature i of row_b (section 4)
+    # HINT: the square root of the total
+
 
 def knn_n(training, query, k, num_features):
     """Like knn_predict, but for rows with any number of features.
@@ -280,19 +287,26 @@ def knn_n(training, query, k, num_features):
     """
     scored = []
     for row in training:
-        scored.append([distance_n(row, query, num_features), row[num_features]])   # HINT: the label. It sat at row[2] before; where is it now?
+        scored.append(
+            [distance_n(row, query, num_features), row[num_features]]
+        )  # HINT: the label. It sat at row[2] before; where is it now?
     scored.sort()
     nearest = []
     for i in range(k):
-        nearest.append(scored[i][1])               # HINT: the label of the i-th closest pair (section 6)
+        nearest.append(
+            scored[i][1]
+        )  # HINT: the label of the i-th closest pair (section 6)
     best_label = nearest[0]
     best_count = 0
     for label in nearest:
-        c = nearest.count(num_features)                           # HINT: how many votes this label has, with .count()
+        c = nearest.count(
+            num_features
+        )  # HINT: how many votes this label has, with .count()
         if c > best_count:
             best_count = c
             best_label = label
     return best_label
+
 
 def accuracy_n(training, test, k, num_features):
     """Like accuracy, but for rows with any number of features.
@@ -308,11 +322,15 @@ def accuracy_n(training, test, k, num_features):
     """
     correct = 0
     for row in test:
-        if knn_n(training, row, k, num_features) == row[num_features]:   # HINT: the flower's true label (same index idea as in knn_n)
+        if (
+            knn_n(training, row, k, num_features) == row[num_features]
+        ):  # HINT: the flower's true label (same index idea as in knn_n)
             correct = correct + 1
-    return correct/len(test)                            # HINT: the fraction correct
+    return correct / len(test)  # HINT: the fraction correct
+
 
 import random
+
 
 def split_data(data, fraction, seed):
     """Shuffles a dataset, then splits it into (training, test).
@@ -325,14 +343,15 @@ def split_data(data, fraction, seed):
     Returns:
         Two lists: the training rows, then the test rows.
     """
-    shuffled = data[:]          # a copy, so we don't wreck the original
-    random.seed(seed)           # same seed = same shuffle, every run
+    shuffled = data[:]  # a copy, so we don't wreck the original
+    random.seed(seed)  # same seed = same shuffle, every run
     random.shuffle(shuffled)
     cut = int(len(shuffled) * fraction)
     return shuffled[:cut], shuffled[cut:]
 
+
 iris_train, iris_test = split_data(iris, 0.8, 42)
-print("train:", len(iris_train), " test:", len(iris_test))    # train: 120  test: 30
+print("train:", len(iris_train), " test:", len(iris_test))  # train: 120  test: 30
 print("iris accuracy, K=5:", accuracy_n(iris_train, iris_test, 5, 4))
 # --- Section 10: when the data is biased ------------------------------
 # No new functions needed - section 10 reuses knn_predict and accuracy
