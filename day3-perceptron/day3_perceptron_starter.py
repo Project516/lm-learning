@@ -27,11 +27,10 @@ class Perceptron:
             num_features: How many input features each example has.
                 The weights list needs one extra slot for the bias.
         """
-        # TODO: create self.weights as a list of num_features + 1 zeros
-        # (the +1 makes room for the bias weight at the front).
-        # Use 0.0 so they start as floats.
-        # Also set self.learning_rate to 1.
-        pass
+        self.weights = []
+        for i in range(num_features + 1):
+            self.weights.append(0.0)
+        self.learning_rate = 1
 
     def predict(self, features):
         """Makes a yes/no decision for one example.
@@ -43,11 +42,13 @@ class Perceptron:
             1 if the weighted sum (bias + each weight times its
             feature) is greater than 0, otherwise 0.
         """
-        # TODO: compute the weighted sum (page 2), then apply the
-        # threshold to turn it into a 1 or a 0. Watch the off-by-one:
-        # the bias sits at the front, so feature i's weight is not at
-        # slot i. The tests below tell you if you got it right.
-        pass
+        total = self.weights[0]
+        for i in range(len(features)):
+            total += self.weights[i + 1] * features[i]
+        if total > 0:
+            return 1
+        else:
+            return 0
 
     def score(self, features):
         """The raw weighted sum, before the threshold (section 9).
@@ -122,16 +123,19 @@ def check(label, got, expected):
 
 # After __init__:  a fresh 2-feature perceptron has three zero weights.
 # p = Perceptron(2)
+# print(p.weights)
+# print(p.predict([1,1]))
+
 # check("init: three zero weights", p.weights, [0.0, 0.0, 0.0])
 
 # After predict:  set the beach weights by hand and check all four cases
 # against the arithmetic you did on pages 2-3.
-# p = Perceptron(2)
-# p.weights = [-2.0, 1.0, 2.0]
-# check("predict sunny + warm", p.predict([1, 1]), 1)
-# check("predict sunny only",   p.predict([1, 0]), 0)
-# check("predict warm only",    p.predict([0, 1]), 0)
-# check("predict neither",      p.predict([0, 0]), 0)
+p = Perceptron(2)
+p.weights = [-2.0, 1.0, 2.0]
+check("predict sunny + warm", p.predict([1, 1]), 1)
+check("predict sunny only",   p.predict([1, 0]), 0)
+check("predict warm only",    p.predict([0, 1]), 0)
+check("predict neither",      p.predict([0, 0]), 0)
 
 # After score:  same weighted sum as predict, but the raw number.
 # p = Perceptron(2)
