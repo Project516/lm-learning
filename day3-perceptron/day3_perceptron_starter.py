@@ -63,7 +63,10 @@ class Perceptron:
         """
         # TODO (section 9): same as predict, but return the total
         # itself instead of turning it into a 1 or a 0.
-        pass
+        total = self.weights[0]
+        for i in range(len(features)):
+            total += self.weights[i + 1] * features[i]
+        return total
 
     def train(self, data, epochs):
         """Teaches the perceptron by guessing and correcting.
@@ -112,6 +115,21 @@ xor_data = [
 ]
 
 
+p = Perceptron(2)
+p.weights = [-2.0, 1.0, 3.0]      # the weights it learned on page 6
+for features in [[1, 1], [1, 0], [0, 1], [0, 0]]:
+    print(features, "score", p.score(features), "-> predict", p.predict(features))
+
+# p2 = Perceptron(2)
+# p2.train(xor_data, 1000)          # train it hard: 100 epochs
+# print("weights:", p2.weights)
+# print("accuracy:", accuracy(p2, xor_data))
+
+# p = Perceptron(2)
+# p.train(beach_data, 10)
+# print(p.weights)
+# print(accuracy(p, beach_data))
+
 # ======================================================================
 # TESTS - check your own work, no peeking at the solution needed.
 # Un-comment each block as you finish that method and re-run the file.
@@ -134,18 +152,18 @@ def check(label, got, expected):
 
 # After predict:  set the beach weights by hand and check all four cases
 # against the arithmetic you did on pages 2-3.
-p = Perceptron(2)
-print("before:", p.weights)
+# p = Perceptron(2)
+# print("before:", p.weights)
 
-p.train(beach_data, 10)
-print("after: ", p.weights)
+# p.train(beach_data, 10)
+# print("after: ", p.weights)
 
-for row in beach_data:
-    features = row[:-1]
-    print(features, "-> predicted", p.predict(features), " correct", row[-1])
+# for row in beach_data:
+#     features = row[:-1]
+#     print(features, "-> predicted", p.predict(features), " correct", row[-1])
 
 
-print(accuracy(p, beach_data))
+# print(accuracy(p, beach_data))
 # p.weights = [-2.0, 1.0, 2.0]
 # check("predict sunny + warm", p.predict([1, 1]), 1)
 # check("predict sunny only",   p.predict([1, 0]), 0)
