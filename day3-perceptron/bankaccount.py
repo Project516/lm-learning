@@ -5,5 +5,5 @@ class bankaccount:
     def deposit(self, amount):
         self.balance += amount
 
-    def show (self):
+    def show(self):
         print(self.balance)
