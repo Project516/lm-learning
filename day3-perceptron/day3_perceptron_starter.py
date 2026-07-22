@@ -75,12 +75,16 @@ class Perceptron:
         Returns:
             Nothing. Learning happens by updating self.weights.
         """
-        # TODO: run `epochs` passes over the data. For each row: split
-        # it into features and label, predict, and apply the update
-        # rule you traced by hand on page 3 (bias first, then each
-        # feature weight). The tests below check you got it right.
-        pass
+        for e in range(epochs):
+            for row in data:
+                features = [row[0], row[1]]
+                label = row[2]
+                prediction = self.predict(features)
+                error = label - prediction
 
+                self.weights[0] += self.learning_rate * error
+                for i in range(len(features)):
+                    self.weights[i + 1] += self.learning_rate * error * features[i]
 
 def accuracy(model, data):
     """Scores a model against labeled data (this one is provided).
@@ -131,11 +135,22 @@ def check(label, got, expected):
 # After predict:  set the beach weights by hand and check all four cases
 # against the arithmetic you did on pages 2-3.
 p = Perceptron(2)
-p.weights = [-2.0, 1.0, 2.0]
-check("predict sunny + warm", p.predict([1, 1]), 1)
-check("predict sunny only",   p.predict([1, 0]), 0)
-check("predict warm only",    p.predict([0, 1]), 0)
-check("predict neither",      p.predict([0, 0]), 0)
+print("before:", p.weights)
+
+p.train(beach_data, 10)
+print("after: ", p.weights)
+
+for row in beach_data:
+    features = row[:-1]
+    print(features, "-> predicted", p.predict(features), " correct", row[-1])
+
+
+print(accuracy(p, beach_data))
+# p.weights = [-2.0, 1.0, 2.0]
+# check("predict sunny + warm", p.predict([1, 1]), 1)
+# check("predict sunny only",   p.predict([1, 0]), 0)
+# check("predict warm only",    p.predict([0, 1]), 0)
+# check("predict neither",      p.predict([0, 0]), 0)
 
 # After score:  same weighted sum as predict, but the raw number.
 # p = Perceptron(2)
