@@ -503,8 +503,6 @@ bounds = feature_bounds(training, 2)
 normalized_training = normalize(training, bounds)
 # print("first normalized flower:", normalized_training[0])  # about [0.02, 0.0, 'setosa']
 
-import math
-
 
 def distance_n(row_a, row_b, num_features):
     total = 0
@@ -583,6 +581,7 @@ def accuracy_n(training, test, k, num_features):
 #     ),
 # )
 
+
 def knn_predict_weighted(training, query, k):
     """Like knn_predict, but each neighbor's vote counts 1 / distance.
 
@@ -601,7 +600,7 @@ def knn_predict_weighted(training, query, k):
 
     neighbors = []
     for i in range(k):
-        neighbors.append(scored[i])   # keep [distance, label] pairs this time
+        neighbors.append(scored[i])  # keep [distance, label] pairs this time
 
     # Which labels are even in the running?
     labels_seen = []
@@ -622,8 +621,10 @@ def knn_predict_weighted(training, query, k):
             best_label = candidate
     return best_label
 
+
 # print("plain    K=5:", knn_predict(training, [5.1, 1.75], 5))          # versicolor
 # print("weighted K=5:", knn_predict_weighted(training, [5.1, 1.75], 5))
+
 
 def knn_predict_confident(training, query, k):
     """Predicts a species by letting the K nearest flowers vote.
@@ -662,11 +663,13 @@ def knn_predict_confident(training, query, k):
             best_count = c
             best_label = label
             itemList.append(best_label)
-            itemList.append(best_count/k)
+            itemList.append(best_count / k)
     return itemList
 
-print(knn_predict_confident(training, [5.0, 1.7], 3))   # ['versicolor', about 0.667]
-print(knn_predict_confident(training, [1.5, 0.2], 3))   # ['setosa', 1.0]
+
+print(knn_predict_confident(training, [5.0, 1.7], 3))  # ['versicolor', about 0.667]
+print(knn_predict_confident(training, [1.5, 0.2], 3))  # ['setosa', 1.0]
+
 
 # --- A.5, Part 3: precision and recall --------------------------------
 def precision_recall(pairs, species):
