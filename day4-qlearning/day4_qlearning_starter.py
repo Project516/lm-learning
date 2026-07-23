@@ -45,6 +45,10 @@ def step(state, action):
         row * 3
     ) + col  # rebuild the single cell number from row and col - the grid is 3 wide
 
+def step_slippery(state, action):
+    if random.random() < 0.2:              # 2 times in 10, the floor slips...
+        action = random.choice(actions)    # ...and the agent slides somewhere random
+    return step(state, action)
 
 def result(new_state):
     """Judges a landing spot: what reward, and is the episode over?
@@ -244,6 +248,40 @@ for row in range(3):
         line = line + str(round(best_value(state), 1)) + "\t"
     print(line)
 
+def train_slippery(episodes, lr):
+    """Trains on the slippery floor; returns the list of per-episode returns."""
+    global Q
+    Q = {}
+    for state in range(9):
+        Q[state] = {}                    # HINT: same two lines as your section-8 setup
+        for a in actions:
+            Q[state][a] = 0.0
+
+    returns = []
+    for episode in range(episodes):
+        state = 0
+        done = False
+        total_reward = 0
+        steps = 0
+        while not done and steps < 100:    # NEW: cap - an unlucky agent can get shoved around a while
+            if random.random() < 0.1:
+                action = random.choice(actions)              # HINT: same choice pair as section 8
+            else:
+                action = best_action(state)
+            new_state = step_slippery(state, action)   # NEW: the icy step
+            reward, done = result(new_state)            # HINT: same as section 8
+            total_reward = total_reward + reward
+            old = Q[state][action]
+            if done:
+                target = reward              # HINT: same target pair as section 8
+            else:
+                target = reward + (discount * best_value(new_state))
+            Q[state][action] = old + lr * (target - old)   # NEW: lr is the contestant
+            state = new_state
+            steps = steps + 1
+        returns.append(total_reward)
+    return returns
+
 
 def train_and_track(episodes, start_epsilon, decay=False):
     """Trains from scratch and returns a list of per-episode returns."""
@@ -405,5 +443,10 @@ def run_gridworld(size, goal, trap, episodes):
 # print("fixed   epsilon, last-100 average return:", sum(fixed[-100:]) / 100)
 # print("decayed epsilon, last-100 average return:", sum(decayed[-100:]) / 100)
 
-random.seed(0)
-print(run_gridworld(5, 24, 12, 200))
+# random.seed(0)
+# print(run_gridworld(5, 24, 12, 200))
+
+for lr in [0.1, 0.5, 1.0]:
+    random.seed(0)                       # same dice for every contestant
+    returns = train_slippery(2000, lr)
+    print("learning rate", lr, "-> last-100 average:", sum(returns[-100:]) / 100)
