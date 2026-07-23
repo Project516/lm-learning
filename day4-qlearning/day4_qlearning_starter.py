@@ -483,6 +483,83 @@ def train_cliff(episodes, epsilon):
             steps = steps + 1
     return falls
 
+def train_with_discount(disc, episodes=2000):
+    """Trains a fresh agent using the given discount; leaves Q trained."""
+    global Q
+    Q = {}
+    for state in range(9):
+        Q[state] = {}                     # HINT: same two lines as section 8 setup
+        for a in actions:
+            Q[state][a] = 0.0
+    for episode in range(episodes):
+        state = 0
+        done = False
+        steps = 0
+        while not done and steps < 200:
+            if random.random() < 0.1:
+                action = random.choice(actions)               # HINT: explore, as in section 8
+            else:
+                action = best_action(state)               # HINT: exploit
+            new_state = step(state, action)
+            reward, done = result(new_state)
+            old = Q[state][action]
+            if done:
+                target = reward
+            else:
+                target = reward + disc * best_value(new_state)   # disc, not the global
+            Q[state][action] = old + learning_rate * (target - old)
+            state = new_state
+            steps = steps + 1
+
+
+for disc in [0.0, 0.5, 0.9, 0.99]:
+    random.seed(0)
+    train_with_discount(disc)
+    print("discount", disc, "value map:")
+    for row in range(3):
+        line = ""
+        for col in range(3):
+            line = line + str(round(best_value(row * 3 + col), 1)) + "\t"
+        print(line)
+
+def evaluate():
+    """Grades the current Q-table: greedy rollout from every start cell."""
+    starts = [s for s in range(9) if s not in (4, 8)]   # skip trap and goal
+    successes = 0
+    total_return = 0.0
+    for start in starts:
+        state = start
+        done = False
+        steps = 0
+        episode_return = 0.0
+        while not done and steps < 20:
+            action = best_action(state)                    # HINT: greedy only - no epsilon here
+            state = step(state, action)
+            reward, done = result(state)              # HINT: judge the landing, as in section 9
+            episode_return = episode_return + reward
+            steps = steps + 1
+        if done and state == 8:              # reached the goal, not the trap
+            successes = successes + 1
+        total_return = total_return + episode_return
+    return successes / len(starts), total_return / len(starts)
+
+# for state in range(9):
+#     for a in actions:
+#         Q[state][a] = 11.0      # optimistic: higher than any real return
+# ...then run your ordinary training loop with epsilon = 0 (pure greedy).
+# One safety note: a purely greedy agent that ever gets stuck never ends
+# its episode, so give the episode's `while not done` loop the same
+# `steps < 200` cap you used in A.4 and A.6 before running these. Without
+# it, the stuck case in "your turn" below will spin forever instead of
+# printing.
+
+# random.seed(0)
+# train_and_track(2000, 0.1)          # a fully trained agent
+# print("2000 episodes ->", evaluate())
+
+# random.seed(0)
+# train_and_track(5, 0.1)             # stopped almost immediately
+# print("   5 episodes ->", evaluate())
 
 # random.seed(0)                         # so you get the same numbers as below
 
@@ -505,17 +582,17 @@ def train_cliff(episodes, epsilon):
 #     returns = train_slippery(2000, lr)
 #     print("learning rate", lr, "-> last-100 average:", sum(returns[-100:]) / 100)
 
-random.seed(0)
-print("falls with epsilon 0.1:", train_cliff(2000, 0.1))
-random.seed(0)
-print("falls with epsilon 0.3:", train_cliff(2000, 0.3))
-state = 0
-path = [8]
-done = False
-steps = 0
-while not done and steps < 200:
-    state = step_cliff(state, best_action(state))
-    reward, done = result_cliff(state)
-    path.append(state)
-    steps += 1
-print(path)
+# random.seed(0)
+# print("falls with epsilon 0.1:", train_cliff(2000, 0.1))
+# random.seed(0)
+# print("falls with epsilon 0.3:", train_cliff(2000, 0.3))
+# state = 0
+# path = [8]
+# done = False
+# steps = 0
+# while not done and steps < 200:
+#     state = step_cliff(state, best_action(state))
+#     reward, done = result_cliff(state)
+#     path.append(state)
+#     steps += 1
+# print(path)
