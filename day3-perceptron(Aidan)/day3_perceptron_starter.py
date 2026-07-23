@@ -5,17 +5,17 @@
 # --- The beach data (from "5. Teach it to learn") --------------------
 # Each row is [sunny, warm, go_to_beach]
 beach_data = [
-    [1, 1, 1],   # sunny and warm   -> go
-    [1, 0, 0],   # sunny, not warm  -> no
-    [0, 1, 0],   # warm, not sunny  -> no
-    [0, 0, 0]    # neither          -> no
+    [1, 1, 1],  # sunny and warm   -> go
+    [1, 0, 0],  # sunny, not warm  -> no
+    [0, 1, 0],  # warm, not sunny  -> no
+    [0, 0, 0],  # neither          -> no
 ]
 
 xor_data = [
-    [0, 0, 0],   # neither      -> no
-    [1, 0, 1],   # only the first -> yes
-    [0, 1, 1],   # only the second -> yes
-    [1, 1, 0]    # both         -> no
+    [0, 0, 0],  # neither      -> no
+    [1, 0, 1],  # only the first -> yes
+    [0, 1, 1],  # only the second -> yes
+    [1, 1, 0],  # both         -> no
 ]
 
 
@@ -28,10 +28,14 @@ class Perceptron:
     """
 
     def __init__(self, num_features):
-        self.weights = []                    # the object's own memory
-        for i in range(num_features+1):                # HINT: one weight per feature, PLUS one more for the bias
-            self.weights.append(0.0)        # HINT: every weight starts at zero - float zero, 0.0
-        self.learning_rate = 1               # size of each nudge
+        self.weights = []  # the object's own memory
+        for i in range(
+            num_features + 1
+        ):  # HINT: one weight per feature, PLUS one more for the bias
+            self.weights.append(
+                0.0
+            )  # HINT: every weight starts at zero - float zero, 0.0
+        self.learning_rate = 1  # size of each nudge
 
     def predict(self, features):
         """Makes a yes/no decision for one example.
@@ -47,14 +51,15 @@ class Perceptron:
         # threshold to turn it into a 1 or a 0. Watch the off-by-one:
         # the bias sits at the front, so feature i's weight is not at
         # slot i. The tests below tell you if you got it right.
-        total = self.weights[0]                  # the weighted sum starts at the bias
+        total = self.weights[0]  # the weighted sum starts at the bias
         for i in range(len(features)):
-            total += features[i]*self.weights[i+1]              # fold in feature i and its weight (mind the off-by-one)
-        if total > 0:                      # the threshold
+            total += (
+                features[i] * self.weights[i + 1]
+            )  # fold in feature i and its weight (mind the off-by-one)
+        if total > 0:  # the threshold
             return 1
         else:
             return 0
-
 
     def score(self, features):
         """The raw weighted sum, before the threshold (section 9).
@@ -69,10 +74,11 @@ class Perceptron:
         """
         # TODO (section 9): same as predict, but return the total
         # itself instead of turning it into a 1 or a 0.
-        total = self.weights[0]                  # the same weighted sum as predict...
+        total = self.weights[0]  # the same weighted sum as predict...
         for i in range(len(features)):
-            total += features[i]*self.weights[i+1]
-        return total                   # ...but hand back the raw number, no threshold
+            total += features[i] * self.weights[i + 1]
+        return total  # ...but hand back the raw number, no threshold
+
     def train(self, data, epochs):
         """Teaches the perceptron by guessing and correcting.
 
@@ -89,16 +95,16 @@ class Perceptron:
         # feature weight). The tests below check you got it right.
         for e in range(epochs):
             for row in data:
-                features = row[:-1]       # split the row like KNN did: features vs label
+                features = row[:-1]  # split the row like KNN did: features vs label
                 label = row[-1]
-                prediction = self.predict(features)    # ask THIS perceptron
-                error = label-prediction          # from page 3
+                prediction = self.predict(features)  # ask THIS perceptron
+                error = label - prediction  # from page 3
 
                 # nudge the bias (its input is always 1), then each weight,
                 # with the update rule you traced by hand on page 3
-                self.weights[0] += self.learning_rate*error
+                self.weights[0] += self.learning_rate * error
                 for i in range(len(features)):
-                    self.weights[i + 1] += self.learning_rate*error*features[i]
+                    self.weights[i + 1] += self.learning_rate * error * features[i]
 
 
 def accuracy(model, data):
@@ -118,26 +124,25 @@ def accuracy(model, data):
             correct = correct + 1
     return correct / len(data)
 
+
 def train_pocket(model, data, epochs):
     """Trains like normal, but remembers the best weights ever seen."""
-    best_weights = model.weights[:]          # a copy of the current weights
+    best_weights = model.weights[:]  # a copy of the current weights
     best_acc = accuracy(model, data)
     for e in range(epochs):
-        model.train(data, 1)                                 # run one ordinary epoch (one call to model.train)
-        current = accuracy(model, data)                       # this epoch's accuracy
-        if current > best_acc:                             # a new personal best?
+        model.train(data, 1)  # run one ordinary epoch (one call to model.train)
+        current = accuracy(model, data)  # this epoch's accuracy
+        if current > best_acc:  # a new personal best?
             best_acc = current
-            best_weights = model.weights[:]              # HINT: pocket a COPY - the [:] matters (see below)
-    model.weights = best_weights             # finish with the best, not the last
+            best_weights = model.weights[
+                :
+            ]  # HINT: pocket a COPY - the [:] matters (see below)
+    model.weights = best_weights  # finish with the best, not the last
     return best_acc
 
+
 # --- The famous failure (from "7. The famous failure: XOR") ------------
-xor_data = [
-    [0, 0, 0],
-    [1, 0, 1],
-    [0, 1, 1],
-    [1, 1, 0]
-]
+xor_data = [[0, 0, 0], [1, 0, 1], [0, 1, 1], [1, 1, 0]]
 
 
 # ======================================================================
@@ -145,6 +150,7 @@ xor_data = [
 # Un-comment each block as you finish that method and re-run the file.
 # Each line prints PASS or FAIL. Aim for PASS all the way down.
 # ======================================================================
+
 
 def check(label, got, expected):
     """Prints PASS/FAIL for one test (provided - you don't edit this)."""
@@ -224,13 +230,27 @@ def check(label, got, expected):
 # print("XOR accuracy:", accuracy(p3, xor_data_3))
 
 study_data = [
-    [5, 5, 0], [2, 4, 0], [0, 2, 0], [0, 6, 0], [2, 3, 0], [2, 2, 0], [3, 0, 0], [1, 0, 0],
-    [7, 8, 1], [5, 4, 1], [6, 3, 1], [3, 3, 1], [4, 5, 1], [4, 8, 1], [6, 2, 1], [8, 6, 1]
+    [5, 5, 0],
+    [2, 4, 0],
+    [0, 2, 0],
+    [0, 6, 0],
+    [2, 3, 0],
+    [2, 2, 0],
+    [3, 0, 0],
+    [1, 0, 0],
+    [7, 8, 1],
+    [5, 4, 1],
+    [6, 3, 1],
+    [3, 3, 1],
+    [4, 5, 1],
+    [4, 8, 1],
+    [6, 2, 1],
+    [8, 6, 1],
 ]
 
 p = Perceptron(2)
 for e in range(30):
-    p.train(study_data, 1)          # one epoch at a time
+    p.train(study_data, 1)  # one epoch at a time
     print("epoch", e, "accuracy", accuracy(p, study_data))
 # ======================================================================
 # B-SET TESTS (the optional "Beyond the perceptron" pages)
