@@ -88,8 +88,14 @@ def result(new_state):
 actions = ["up", "down", "left", "right"]
 
 Q = {}
-# TODO: fill Q so every cell 0-8 has an inner dictionary with all
-# four actions starting at 0.0 - a loop inside a loop.
+for state in range(9):  # cells 0 through 8
+    Q[state] = {}  # HINT: file a fresh EMPTY inner dictionary under this cell
+    for a in actions:
+        Q[state][a] = (
+            0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
+        )
+
+# print(Q[0])  # peek at cell 0's inner dictionary: all four actions at 0.0
 
 
 def best_value(state):
@@ -102,9 +108,14 @@ def best_value(state):
         The largest number among Q[state]'s four action values.
         The update rule uses this as "best next estimate".
     """
-    # TODO: return the HIGHEST Q[state][action] across the four actions
-    # ("best so far" pattern - start with Q[state]["up"])
-    pass
+
+    best = Q[state]["up"]  # start by assuming "up" is best
+    for a in actions:
+        if (
+            Q[state][a] > best
+        ):  # HINT: is this action's quality higher than the best so far?
+            best = Q[state][a]  # HINT: remember the VALUE
+    return best
 
 
 def best_action(state):
@@ -117,8 +128,13 @@ def best_action(state):
         The action string ("up", "down", "left", or "right") with
         the highest Q-value in this state.
     """
-    # TODO: same scan, but return the NAME of the best action
-    pass
+    best_a = "up"  # start by assuming "up" is best
+    best = Q[state]["up"]
+    for a in actions:
+        if Q[state][a] > best:  # found a better one?
+            best = Q[state][a]  # remember its value
+            best_a = a  # HINT: AND remember which action owned it
+    return best_a  # HINT: hand back the NAME, not the number
 
 
 # --- Section 8: the training loop ----------------------------------------
@@ -126,15 +142,42 @@ learning_rate = 0.5
 discount = 0.9
 epsilon = 0.1
 
-# TODO: for 2000 episodes, starting each one at cell 0:
-#   keep moving until the episode is done. Each move:
-#     1. choose the action with the epsilon-greedy rule (page 6):
-#        usually the best known action, occasionally a random one
-#     2. take the step and judge the landing (your two functions)
-#     3. nudge Q[state][action] toward the target with the update
-#        rule from page 5 - and remember the terminal-move special
-#        case where there is no next state to look ahead into
-#     4. move on to the new state
+for episode in range(2000):  # live through 2000 full episodes
+    state = 0  # every episode starts at the top-left corner
+    done = False
+    while not done:  # keep moving until this episode ends
+        # choose an action with the epsilon-greedy rule from page 6
+        if random.random() < epsilon:
+            action = random.choice(
+                actions
+            )  # HINT: explore - a random choice from the actions list
+        else:
+            action = best_action(state)  # HINT: exploit - this state's best known move
+
+        new_state = step(
+            state, action
+        )  # HINT: where does this action land us? (your step function)
+        reward, done = result(
+            new_state
+        )  # HINT: judge the landing - your result function returns both at once
+
+        # the update rule from page 5, in code
+        old = Q[state][action]
+        if done:
+            target = (
+                reward  # HINT: terminal move - no future to look at, just the reward
+            )
+        else:
+            target = reward + discount * best_value(
+                state
+            )  # HINT: reward, plus discount times the best value of the NEW state
+        Q[state][action] += (
+            learning_rate * target
+        )  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+
+        state = new_state  # step onto the new cell and loop again
+
+print(Q[0])
 
 # --- Section 9: watch what it learned ------------------------------------
 # for state in range(9):
