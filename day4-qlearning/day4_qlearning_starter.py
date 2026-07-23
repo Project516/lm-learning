@@ -57,10 +57,12 @@ def result(new_state):
         pays for this landing; done is True only when the episode
         ends (goal or trap).
     """
-    # TODO: return TWO things separated by a comma: (reward, done).
+
+    # Return TWO things separated by a comma: (reward, done).
     # The goal and the trap end the episode with their big rewards;
     # every ordinary step costs a little (the map on page 3 has the
     # exact numbers).
+
     if new_state == 8:
         return 10, True
     elif new_state == 4:
