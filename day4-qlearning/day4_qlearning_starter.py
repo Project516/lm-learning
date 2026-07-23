@@ -429,6 +429,60 @@ def run_gridworld(size, goal, trap, episodes):
         steps += 1
     return path
 
+def step_cliff(state, action):
+    row = state // 4              # this grid is 4 wide, so // 4 and % 4
+    col = state % 4
+    if action == "up" and row > 0:
+        row = row - 1
+    elif action == "down" and row < 2:
+        row = row + 1
+    elif action == "left" and col > 0:                    # HINT: "left" - unchanged from your section-7 step
+        col -= 1
+    elif action == "right" and col < 3:                    # HINT: "right" - the far edge is col 3 now
+        col += 1
+    return (row * 4) + col                   # HINT: rebuild with 4, the new width
+
+def result_cliff(new_state):
+    if new_state == 11:                        # the goal
+        return 10, True
+    elif new_state == 9 or new_state == 10:    # the cliff!
+        return -100, True
+    else:
+        return -1, False                # HINT: an ordinary step, same as always
+
+def train_cliff(episodes, epsilon):
+    """Trains on the cliff map; returns how many times the agent fell."""
+    global Q
+    Q = {}
+    for state in range(12):                    # twelve cells now
+        Q[state] = {}                        # HINT: same two lines as your section-8 setup
+        for a in actions:
+            Q[state][a] = 0.0
+
+    falls = 0
+    for episode in range(episodes):
+        state = 8                              # NEW: start beside the cliff, not at 0
+        done = False
+        steps = 0
+        while not done and steps < 200:
+            if random.random() < epsilon:
+                action = random.choice(actions)                  # HINT: same choice pair as section 8
+            else:
+                action = best_action(state)
+            new_state = step_cliff(state, action)      # NEW: this map's step
+            reward, done = result_cliff(new_state)     # NEW: this map's judge
+            if reward == -100:
+                falls = falls + 1              # NEW: count every plunge
+            old = Q[state][action]
+            if done:
+                target = reward                  # HINT: same target pair as section 8
+            else:
+                target = reward + discount * best_value(new_state) - old
+            Q[state][action] += learning_rate * target            # HINT: the update rule, same as section 8
+            state = new_state
+            steps = steps + 1
+    return falls
+
 
 # random.seed(0)                         # so you get the same numbers as below
 
@@ -446,7 +500,22 @@ def run_gridworld(size, goal, trap, episodes):
 # random.seed(0)
 # print(run_gridworld(5, 24, 12, 200))
 
-for lr in [0.1, 0.5, 1.0]:
-    random.seed(0)                       # same dice for every contestant
-    returns = train_slippery(2000, lr)
-    print("learning rate", lr, "-> last-100 average:", sum(returns[-100:]) / 100)
+# for lr in [0.1, 0.5, 1.0]:
+#     random.seed(0)                       # same dice for every contestant
+#     returns = train_slippery(2000, lr)
+#     print("learning rate", lr, "-> last-100 average:", sum(returns[-100:]) / 100)
+
+random.seed(0)
+print("falls with epsilon 0.1:", train_cliff(2000, 0.1))
+random.seed(0)
+print("falls with epsilon 0.3:", train_cliff(2000, 0.3))
+state = 0
+path = [8]
+done = False
+steps = 0
+while not done and steps < 200:
+    state = step_cliff(state, best_action(state))
+    reward, done = result_cliff(state)
+    path.append(state)
+    steps += 1
+print(path)
