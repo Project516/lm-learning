@@ -41,7 +41,9 @@ def step(state, action):
     elif action == "right" and col < 2:  # "right", but only when col is not already 2
         col += 1  # one column more
 
-    return (row * 3) + col  # rebuild the single cell number from row and col - the grid is 3 wide
+    return (
+        row * 3
+    ) + col  # rebuild the single cell number from row and col - the grid is 3 wide
 
 
 def result(new_state):
@@ -89,7 +91,9 @@ Q = {}
 for state in range(9):  # cells 0 through 8
     Q[state] = {}  # HINT: file a fresh EMPTY inner dictionary under this cell
     for a in actions:
-        Q[state][a] = 0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
+        Q[state][a] = (
+            0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
+        )
 
 # print(Q[0])  # peek at cell 0's inner dictionary: all four actions at 0.0
 
@@ -107,7 +111,9 @@ def best_value(state):
 
     best = Q[state]["up"]  # start by assuming "up" is best
     for a in actions:
-        if (Q[state][a] > best):  # HINT: is this action's quality higher than the best so far?
+        if (
+            Q[state][a] > best
+        ):  # HINT: is this action's quality higher than the best so far?
             best = Q[state][a]  # HINT: remember the VALUE
     return best
 
@@ -142,20 +148,32 @@ for episode in range(2000):  # live through 2000 full episodes
     while not done:  # keep moving until this episode ends
         # choose an action with the epsilon-greedy rule from page 6
         if random.random() < epsilon:
-            action = random.choice(actions)  # HINT: explore - a random choice from the actions list
+            action = random.choice(
+                actions
+            )  # HINT: explore - a random choice from the actions list
         else:
             action = best_action(state)  # HINT: exploit - this state's best known move
 
-        new_state = step(state, action)  # HINT: where does this action land us? (your step function)
-        reward, done = result(new_state)  # HINT: judge the landing - your result function returns both at once
+        new_state = step(
+            state, action
+        )  # HINT: where does this action land us? (your step function)
+        reward, done = result(
+            new_state
+        )  # HINT: judge the landing - your result function returns both at once
 
         # the update rule from page 5, in code
         old = Q[state][action]
         if done:
-            target = reward  # HINT: terminal move - no future to look at, just the reward
+            target = (
+                reward  # HINT: terminal move - no future to look at, just the reward
+            )
         else:
-            target = reward + (discount * best_value(new_state))  # HINT: reward, plus discount times the best value of the NEW state
-        Q[state][action] += (learning_rate * target - old)  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+            target = reward + (
+                discount * best_value(new_state)
+            )  # HINT: reward, plus discount times the best value of the NEW state
+        Q[state][action] += (
+            learning_rate * target - old
+        )  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
 
         state = new_state  # step onto the new cell and loop again
 
@@ -169,13 +187,15 @@ state = 0
 path = [state]
 done = False
 steps = 0
-while not done and steps < 20:   # cap: a lost agent prints evidence instead of freezing
+while not done and steps < 20:  # cap: a lost agent prints evidence instead of freezing
     action = best_action(state)
     state = step(state, action)
     reward, done = result(state)
     path.append(state)
     steps = steps + 1
-print("path:", path)     # hoping for: [0, 1, 2, 5, 8] (mirror [0, 3, 6, 7, 8] is just as good)
+print(
+    "path:", path
+)  # hoping for: [0, 1, 2, 5, 8] (mirror [0, 3, 6, 7, 8] is just as good)
 
 
 # ======================================================================
@@ -215,3 +235,84 @@ def check(label, got, expected):
 #     reward, done = result(s)
 #     steps = steps + 1
 # check("trained policy reaches the goal (cell 8)", s, 8)
+
+print("value map:")
+for row in range(3):
+    line = ""
+    for col in range(3):
+        state = row * 3 + col
+        line = line + str(round(best_value(state), 1)) + "\t"
+    print(line)
+
+
+def train_and_track(episodes, start_epsilon, decay=False):
+    """Trains from scratch and returns a list of per-episode returns."""
+
+    global Q
+    Q = {}
+    for state in range(9):  # cells 0 through 8
+        Q[state] = {}  # HINT: file a fresh EMPTY inner dictionary under this cell
+        for a in actions:
+            Q[state][a] = (
+                0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
+            )
+
+    returns = []
+    for episode in range(episodes):  # live through 2000 full episodes
+        if decay:  # EDIT: insert these four lines
+            # shrink from start_epsilon down toward 0 across the episodes
+            epsilon = start_epsilon * (1 - episode / episodes)
+        else:
+            epsilon = start_epsilon
+
+        state = 0  # every episode starts at the top-left corner
+        done = False
+        total_reward = 0
+        while not done:  # keep moving until this episode ends
+            # choose an action with the epsilon-greedy rule from page 6
+            if random.random() < epsilon:
+                action = random.choice(
+                    actions
+                )  # HINT: explore - a random choice from the actions list
+            else:
+                action = best_action(
+                    state
+                )  # HINT: exploit - this state's best known move
+
+            new_state = step(
+                state, action
+            )  # HINT: where does this action land us? (your step function)
+            reward, done = result(
+                new_state
+            )  # HINT: judge the landing - your result function returns both at once
+            total_reward += reward
+
+            # the update rule from page 5, in code
+            old = Q[state][action]
+            if done:
+                target = reward  # HINT: terminal move - no future to look at, just the reward
+            else:
+                target = reward + (
+                    discount * best_value(new_state)
+                )  # HINT: reward, plus discount times the best value of the NEW state
+            Q[state][action] += (
+                learning_rate * target - old
+            )  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+
+            state = new_state
+        returns.append(total_reward)  # NEW: record the finished episode's return
+    return returns
+
+
+# random.seed(0)                         # so you get the same numbers as below
+
+# returns = train_and_track(2000, 0.1)
+# print("first 15 returns:", returns[:15])
+
+random.seed(0)
+fixed = train_and_track(2000, 0.1)  # fixed epsilon = 0.1
+random.seed(0)
+decayed = train_and_track(2000, 0.3, decay=True)  # starts at 0.3, fades to 0
+
+print("fixed   epsilon, last-100 average return:", sum(fixed[-100:]) / 100)
+print("decayed epsilon, last-100 average return:", sum(decayed[-100:]) / 100)
