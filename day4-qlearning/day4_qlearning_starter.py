@@ -226,78 +226,74 @@ def check(label, got, expected):
 # WHEN TO RUN: after your training loop has run. Following the greedy
 # policy from the start should walk all the way to the goal (cell 8).
 # The exact route can vary, so we only check that it arrives.
-#
-# s = 0
-# done = False
-# steps = 0
-# while not done and steps < 20:
-#     s = step(s, best_action(s))
-#     reward, done = result(s)
-#     steps = steps + 1
-# check("trained policy reaches the goal (cell 8)", s, 8)
 
-# print("value map:")
-# for row in range(3):
-#     line = ""
-#     for col in range(3):
-#         state = row * 3 + col
-#         line = line + str(round(best_value(state), 1)) + "\t"
-#     print(line)
+s = 0
+done = False
+steps = 0
+while not done and steps < 20:
+    s = step(s, best_action(s))
+    reward, done = result(s)
+    steps = steps + 1
+check("trained policy reaches the goal (cell 8)", s, 8)
+
+print("value map:")
+for row in range(3):
+    line = ""
+    for col in range(3):
+        state = row * 3 + col
+        line = line + str(round(best_value(state), 1)) + "\t"
+    print(line)
 
 
-# def train_and_track(episodes, start_epsilon, decay=False):
-#     """Trains from scratch and returns a list of per-episode returns."""
+def train_and_track(episodes, start_epsilon, decay=False):
+    """Trains from scratch and returns a list of per-episode returns."""
 
-#     global Q
-#     Q = {}
-#     for state in range(9):  # cells 0 through 8
-#         Q[state] = {}  # HINT: file a fresh EMPTY inner dictionary under this cell
-#         for a in actions:
-#             Q[state][a] = (
-#                 0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
-#             )
+    global Q
+    Q = {}
+    for state in range(9):  # cells 0 through 8
+        Q[state] = {}  # HINT: file a fresh EMPTY inner dictionary under this cell
+        for a in actions:
+            Q[state][a] = (
+                0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
+            )
 
-#     returns = []
-#     for episode in range(episodes):  # live through 2000 full episodes
-#         if decay:  # EDIT: insert these four lines
-#             # shrink from start_epsilon down toward 0 across the episodes
-#             epsilon = start_epsilon * (1 - episode / episodes)
-#         else:
-#             epsilon = start_epsilon
+    returns = []
+    for episode in range(episodes):  # live through 2000 full episodes
+        if decay:  # EDIT: insert these four lines
+            # shrink from start_epsilon down toward 0 across the episodes
+            epsilon = start_epsilon * (1 - episode / episodes)
+        else:
+            epsilon = start_epsilon
 
-#         state = 0  # every episode starts at the top-left corner
-#         done = False
-#         total_reward = 0
-#         while not done:  # keep moving until this episode ends
-#             # choose an action with the epsilon-greedy rule from page 6
-#             if random.random() < epsilon:
-#                 action = random.choice(
-#                     actions
-#                 )  # HINT: explore - a random choice from the actions list
-#             else:
-#                 action = best_action(
-#                     state
-#                 )  # HINT: exploit - this state's best known move
+        state = 0  # every episode starts at the top-left corner
+        done = False
+        total_reward = 0
+        while not done:  # keep moving until this episode ends
+            # choose an action with the epsilon-greedy rule from page 6
+            if random.random() < epsilon:
+                action = random.choice(
+                    actions
+                )  # HINT: explore - a random choice from the actions list
+            else:
+                action = best_action(
+                    state
+                )  # HINT: exploit - this state's best known move
 
-#             new_state = step(
-#                 state, action
-#             )  # HINT: where does this action land us? (your step function)
-#             reward, done = result(
-#                 new_state
-#             )  # HINT: judge the landing - your result function returns both at once
-#             total_reward += reward
+            new_state = step(state, action)  # HINT: where does this action land us? (your step function)
+            reward, done = result(new_state)  # HINT: judge the landing - your result function returns both at once
+            total_reward += reward
 
-#             # the update rule from page 5, in code
-#             old = Q[state][action]
-#             if done:
-#                 target = reward  # HINT: terminal move - no future to look at, just the reward
-#             else:
-#                 target = reward + (discount * best_value(new_state))  # HINT: reward, plus discount times the best value of the NEW state
-#             Q[state][action] += (learning_rate * target - old)  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+            # the update rule from page 5, in code
+            old = Q[state][action]
+            if done:
+                target = reward  # HINT: terminal move - no future to look at, just the reward
+            else:
+                target = reward + (discount * best_value(new_state))  # HINT: reward, plus discount times the best value of the NEW state
+            Q[state][action] += (learning_rate * target - old)  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
 
-#             state = new_state
-#         returns.append(total_reward)  # NEW: record the finished episode's return
-#     return returns
+            state = new_state
+        returns.append(total_reward)  # NEW: record the finished episode's return
+    return returns
 
 def run_gridworld(size, goal, trap, episodes):
     """Trains a Q-learning agent on a size-by-size grid; returns its path."""
@@ -310,9 +306,9 @@ def run_gridworld(size, goal, trap, episodes):
             row = row - 1
         elif action == "down" and row < size - 1:   # size - 1, not 2
             row = row + 1
-        elif action == "left" and col < 0:                       # HINT: "left" - unchanged from your section-7 step
+        elif action == "left" and col > 0:                       # HINT: "left" - unchanged from your section-7 step
             col -= 1
-        elif action == "right" and col > size - 1:                       # HINT: "right" - but the far edge is now size - 1
+        elif action == "right" and col < size - 1:                       # HINT: "right" - but the far edge is now size - 1
             col += 1
         return (row * size) + col                      # HINT: rebuild with size where the 3 used to be
 
@@ -335,6 +331,24 @@ def run_gridworld(size, goal, trap, episodes):
 
     # ...and paste your own best_action from section 8 here, unchanged.
 
+    def best_action(state):
+        """Finds which action the agent currently believes is best.
+
+        Args:
+            state: A cell number, 0 through 8.
+
+        Returns:
+            The action string ("up", "down", "left", or "right") with
+            the highest Q-value in this state.
+        """
+        best_a = "up"  # start by assuming "up" is best
+        best = Q[state]["up"]
+        for a in actions:
+            if Q[state][a] > best:  # found a better one?
+                best = Q[state][a]  # remember its value
+                best_a = a  # HINT: AND remember which action owned it
+        return best_a  # HINT: hand back the NAME, not the number
+
     learning_rate = 0.5
     discount = 0.9
     epsilon = 0.1
@@ -344,36 +358,27 @@ def run_gridworld(size, goal, trap, episodes):
         steps = 0
         while not done:  # keep moving until this episode ends
             # choose an action with the epsilon-greedy rule from page 6
+            # print("in this loop")
             if random.random() < epsilon:
-                action = random.choice(
-                    actions
-                )  # HINT: explore - a random choice from the actions list
+                action = random.choice(actions)  # HINT: explore - a random choice from the actions list
             else:
                 action = best_action(state)  # HINT: exploit - this state's best known move
 
-            new_state = step(
-                state, action
-            )  # HINT: where does this action land us? (your step function)
-            reward, done = result(
-                new_state
-            )  # HINT: judge the landing - your result function returns both at once
-
+            new_state = step(state, action)  # HINT: where does this action land us? (your step function)
+            reward, done = result(new_state)  # HINT: judge the landing - your result function returns both at once
             # the update rule from page 5, in code
             old = Q[state][action]
             if done:
-                target = (
-                    reward  # HINT: terminal move - no future to look at, just the reward
-                )
+                target = reward  # HINT: terminal move - no future to look at, just the reward
+                
             else:
-                target = reward + (
-                    discount * best_value(new_state)
-                )  # HINT: reward, plus discount times the best value of the NEW state
-            Q[state][action] += learning_rate * (target - old)
-              # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+                target = reward + discount * best_value(new_state) - old  # HINT: reward, plus discount times the best value of the NEW state
+
+            Q[state][action] += learning_rate * target # HINT: nudge old toward target by the learning rate - page 5's rule, one line
 
             state = new_state  # step onto the new cell and loop again
             steps +=1
-
+        # print("out of this loop")
     # follow the finished policy from the start corner
     state = 0
     path = [0]
@@ -383,7 +388,7 @@ def run_gridworld(size, goal, trap, episodes):
         state = step(state, best_action(state))
         reward, done = result(state)
         path.append(state)
-        steps = steps + 1
+        steps += 1
     return path
 
 
@@ -401,4 +406,4 @@ def run_gridworld(size, goal, trap, episodes):
 # print("decayed epsilon, last-100 average return:", sum(decayed[-100:]) / 100)
 
 random.seed(0)
-print(run_gridworld(5, 24, 12, 5000))
+print(run_gridworld(5, 24, 12, 200))
