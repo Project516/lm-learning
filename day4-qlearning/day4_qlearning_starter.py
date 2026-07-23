@@ -45,7 +45,12 @@ def result(new_state):
     # The goal and the trap end the episode with their big rewards;
     # every ordinary step costs a little (the map on page 3 has the
     # exact numbers).
-    pass
+    if new_state == 8:
+        return 10, True
+    elif new_state == 4:
+        return -10, True
+    else:
+        return -1, False
 
 
 # ---- TESTS for section 7 -----------------------------------------------
