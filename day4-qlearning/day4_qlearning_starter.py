@@ -36,14 +36,12 @@ def step(state, action):
         row = row - 1
     elif action == "down" and row < 2:  # bottom-edge guard
         row = row + 1
-    elif action == "left" and col != 0:  # "left", but only when col is not already 0
+    elif action == "left" and col > 0:  # "left", but only when col is not already 0
         col -= 1  # one column less
-    elif action == "right" and col != 2:  # "right", but only when col is not already 2
+    elif action == "right" and col < 2:  # "right", but only when col is not already 2
         col += 1  # one column more
 
-    return (
-        row * 3
-    ) + col  # rebuild the single cell number from row and col - the grid is 3 wide
+    return (row * 3) + col  # rebuild the single cell number from row and col - the grid is 3 wide
 
 
 def result(new_state):
@@ -91,9 +89,7 @@ Q = {}
 for state in range(9):  # cells 0 through 8
     Q[state] = {}  # HINT: file a fresh EMPTY inner dictionary under this cell
     for a in actions:
-        Q[state][a] = (
-            0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
-        )
+        Q[state][a] = 0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
 
 # print(Q[0])  # peek at cell 0's inner dictionary: all four actions at 0.0
 
@@ -111,9 +107,7 @@ def best_value(state):
 
     best = Q[state]["up"]  # start by assuming "up" is best
     for a in actions:
-        if (
-            Q[state][a] > best
-        ):  # HINT: is this action's quality higher than the best so far?
+        if (Q[state][a] > best):  # HINT: is this action's quality higher than the best so far?
             best = Q[state][a]  # HINT: remember the VALUE
     return best
 
@@ -148,52 +142,40 @@ for episode in range(2000):  # live through 2000 full episodes
     while not done:  # keep moving until this episode ends
         # choose an action with the epsilon-greedy rule from page 6
         if random.random() < epsilon:
-            action = random.choice(
-                actions
-            )  # HINT: explore - a random choice from the actions list
+            action = random.choice(actions)  # HINT: explore - a random choice from the actions list
         else:
             action = best_action(state)  # HINT: exploit - this state's best known move
 
-        new_state = step(
-            state, action
-        )  # HINT: where does this action land us? (your step function)
-        reward, done = result(
-            new_state
-        )  # HINT: judge the landing - your result function returns both at once
+        new_state = step(state, action)  # HINT: where does this action land us? (your step function)
+        reward, done = result(new_state)  # HINT: judge the landing - your result function returns both at once
 
         # the update rule from page 5, in code
         old = Q[state][action]
         if done:
-            target = (
-                reward  # HINT: terminal move - no future to look at, just the reward
-            )
+            target = reward  # HINT: terminal move - no future to look at, just the reward
         else:
-            target = reward + discount * best_value(
-                state
-            )  # HINT: reward, plus discount times the best value of the NEW state
-        Q[state][action] += (
-            learning_rate * target
-        )  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+            target = reward + (discount * best_value(new_state))  # HINT: reward, plus discount times the best value of the NEW state
+        Q[state][action] += (learning_rate * target - old)  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
 
         state = new_state  # step onto the new cell and loop again
 
-print(Q[0])
+# print(Q[0])
 
 # --- Section 9: watch what it learned ------------------------------------
-# for state in range(9):
-#     print("cell", state, "->", best_action(state))
+for state in range(9):
+    print("cell", state, "->", best_action(state))
 
-# state = 0
-# path = [state]
-# done = False
-# steps = 0
-# while not done and steps < 20:   # cap: a lost agent prints evidence instead of freezing
-#     action = best_action(state)
-#     state = step(state, action)
-#     reward, done = result(state)
-#     path.append(state)
-#     steps = steps + 1
-# print("path:", path)     # hoping for: [0, 1, 2, 5, 8] (mirror [0, 3, 6, 7, 8] is just as good)
+state = 0
+path = [state]
+done = False
+steps = 0
+while not done and steps < 20:   # cap: a lost agent prints evidence instead of freezing
+    action = best_action(state)
+    state = step(state, action)
+    reward, done = result(state)
+    path.append(state)
+    steps = steps + 1
+print("path:", path)     # hoping for: [0, 1, 2, 5, 8] (mirror [0, 3, 6, 7, 8] is just as good)
 
 
 # ======================================================================
