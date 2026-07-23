@@ -9,6 +9,7 @@
 
 import random
 
+
 # --- Section 7: the environment ---------------------------------------
 def step(state, action):
     """Moves the agent one cell in the grid, respecting the edges.
@@ -28,6 +29,7 @@ def step(state, action):
     # single cell number from the row and column and return it.
     pass
 
+
 def result(new_state):
     """Judges a landing spot: what reward, and is the episode over?
 
@@ -44,6 +46,7 @@ def result(new_state):
     # every ordinary step costs a little (the map on page 3 has the
     # exact numbers).
     pass
+
 
 # ---- TESTS for section 7 -----------------------------------------------
 # WHEN TO RUN: right after you finish step() and result(), before you
@@ -65,6 +68,7 @@ Q = {}
 # TODO: fill Q so every cell 0-8 has an inner dictionary with all
 # four actions starting at 0.0 - a loop inside a loop.
 
+
 def best_value(state):
     """Finds the agent's highest quality estimate for a state.
 
@@ -79,6 +83,7 @@ def best_value(state):
     # ("best so far" pattern - start with Q[state]["up"])
     pass
 
+
 def best_action(state):
     """Finds which action the agent currently believes is best.
 
@@ -91,6 +96,7 @@ def best_action(state):
     """
     # TODO: same scan, but return the NAME of the best action
     pass
+
 
 # --- Section 8: the training loop ----------------------------------------
 learning_rate = 0.5
@@ -130,6 +136,7 @@ epsilon = 0.1
 # file: section 7's tests after step()/result(), section 8's after the
 # Q-table and training loop. Each line prints PASS or FAIL.
 # ======================================================================
+
 
 def check(label, got, expected):
     """Prints PASS/FAIL for one test (provided - you don't edit this)."""
