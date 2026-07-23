@@ -22,12 +22,28 @@ def step(state, action):
         The cell number the agent lands on. Moving into a wall
         returns the SAME cell (the agent bumps and stays put).
     """
-    # TODO: turn the cell number into a row and a column using the
+
+    # Turn the cell number into a row and a column using the
     # integer-division-and-remainder trick from page 7. Then change
     # the row or the column for the chosen action, but ONLY when the
     # move stays on the grid (check the edges!). Finally rebuild the
     # single cell number from the row and column and return it.
-    pass
+
+    row = state // 3  # // is integer division: it divides and throws away the remainder
+    col = state % 3  # % is modulo: it gives ONLY the remainder
+
+    if action == "up" and row > 0:  # top-edge guard: only move if not in row 0
+        row = row - 1
+    elif action == "down" and row < 2:  # bottom-edge guard
+        row = row + 1
+    elif action == "left" and col != 0:  # "left", but only when col is not already 0
+        col -= 1  # one column less
+    elif action == "right" and col != 2:  # "right", but only when col is not already 2
+        col += 1  # one column more
+
+    return (
+        row * 3
+    ) + col  # rebuild the single cell number from row and col - the grid is 3 wide
 
 
 def result(new_state):
