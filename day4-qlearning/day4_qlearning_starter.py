@@ -236,38 +236,112 @@ def check(label, got, expected):
 #     steps = steps + 1
 # check("trained policy reaches the goal (cell 8)", s, 8)
 
-print("value map:")
-for row in range(3):
-    line = ""
-    for col in range(3):
-        state = row * 3 + col
-        line = line + str(round(best_value(state), 1)) + "\t"
-    print(line)
+# print("value map:")
+# for row in range(3):
+#     line = ""
+#     for col in range(3):
+#         state = row * 3 + col
+#         line = line + str(round(best_value(state), 1)) + "\t"
+#     print(line)
 
 
-def train_and_track(episodes, start_epsilon, decay=False):
-    """Trains from scratch and returns a list of per-episode returns."""
+# def train_and_track(episodes, start_epsilon, decay=False):
+#     """Trains from scratch and returns a list of per-episode returns."""
 
-    global Q
-    Q = {}
-    for state in range(9):  # cells 0 through 8
-        Q[state] = {}  # HINT: file a fresh EMPTY inner dictionary under this cell
-        for a in actions:
-            Q[state][a] = (
-                0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
-            )
+#     global Q
+#     Q = {}
+#     for state in range(9):  # cells 0 through 8
+#         Q[state] = {}  # HINT: file a fresh EMPTY inner dictionary under this cell
+#         for a in actions:
+#             Q[state][a] = (
+#                 0.0  # HINT: inside that inner dictionary, start action a at quality 0.0
+#             )
 
-    returns = []
-    for episode in range(episodes):  # live through 2000 full episodes
-        if decay:  # EDIT: insert these four lines
-            # shrink from start_epsilon down toward 0 across the episodes
-            epsilon = start_epsilon * (1 - episode / episodes)
+#     returns = []
+#     for episode in range(episodes):  # live through 2000 full episodes
+#         if decay:  # EDIT: insert these four lines
+#             # shrink from start_epsilon down toward 0 across the episodes
+#             epsilon = start_epsilon * (1 - episode / episodes)
+#         else:
+#             epsilon = start_epsilon
+
+#         state = 0  # every episode starts at the top-left corner
+#         done = False
+#         total_reward = 0
+#         while not done:  # keep moving until this episode ends
+#             # choose an action with the epsilon-greedy rule from page 6
+#             if random.random() < epsilon:
+#                 action = random.choice(
+#                     actions
+#                 )  # HINT: explore - a random choice from the actions list
+#             else:
+#                 action = best_action(
+#                     state
+#                 )  # HINT: exploit - this state's best known move
+
+#             new_state = step(
+#                 state, action
+#             )  # HINT: where does this action land us? (your step function)
+#             reward, done = result(
+#                 new_state
+#             )  # HINT: judge the landing - your result function returns both at once
+#             total_reward += reward
+
+#             # the update rule from page 5, in code
+#             old = Q[state][action]
+#             if done:
+#                 target = reward  # HINT: terminal move - no future to look at, just the reward
+#             else:
+#                 target = reward + (discount * best_value(new_state))  # HINT: reward, plus discount times the best value of the NEW state
+#             Q[state][action] += (learning_rate * target - old)  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+
+#             state = new_state
+#         returns.append(total_reward)  # NEW: record the finished episode's return
+#     return returns
+
+def run_gridworld(size, goal, trap, episodes):
+    """Trains a Q-learning agent on a size-by-size grid; returns its path."""
+    actions = ["up", "down", "left", "right"]
+
+    def step(state, action):
+        row = state // size              # size, not 3
+        col = state % size
+        if action == "up" and row > 0:
+            row = row - 1
+        elif action == "down" and row < size - 1:   # size - 1, not 2
+            row = row + 1
+        elif action == "left" and col < 0:                       # HINT: "left" - unchanged from your section-7 step
+            col -= 1
+        elif action == "right" and col > size - 1:                       # HINT: "right" - but the far edge is now size - 1
+            col += 1
+        return (row * size) + col                      # HINT: rebuild with size where the 3 used to be
+
+    def result(new_state):
+        if new_state == goal:            # the goal you passed in, not a hard-coded 8
+            return 10, True
+        elif new_state == trap:                       # HINT: the trap you passed in
+            return -10, True
         else:
-            epsilon = start_epsilon
+            return -1, False
 
+    Q = {}
+    for state in range(size * size):     # size*size cells now
+        Q[state] = {}                  # HINT: same two lines as your section-8 setup
+        for a in actions:
+            Q[state][a] = 0.0
+
+    def best_value(state):
+        return max(Q[state][a] for a in actions)   # a one-line shortcut for your whole scan!
+
+    # ...and paste your own best_action from section 8 here, unchanged.
+
+    learning_rate = 0.5
+    discount = 0.9
+    epsilon = 0.1
+    for episode in range(episodes):  # live through 2000 full episodes
         state = 0  # every episode starts at the top-left corner
         done = False
-        total_reward = 0
+        steps = 0
         while not done:  # keep moving until this episode ends
             # choose an action with the epsilon-greedy rule from page 6
             if random.random() < epsilon:
@@ -275,9 +349,7 @@ def train_and_track(episodes, start_epsilon, decay=False):
                     actions
                 )  # HINT: explore - a random choice from the actions list
             else:
-                action = best_action(
-                    state
-                )  # HINT: exploit - this state's best known move
+                action = best_action(state)  # HINT: exploit - this state's best known move
 
             new_state = step(
                 state, action
@@ -285,23 +357,34 @@ def train_and_track(episodes, start_epsilon, decay=False):
             reward, done = result(
                 new_state
             )  # HINT: judge the landing - your result function returns both at once
-            total_reward += reward
 
             # the update rule from page 5, in code
             old = Q[state][action]
             if done:
-                target = reward  # HINT: terminal move - no future to look at, just the reward
+                target = (
+                    reward  # HINT: terminal move - no future to look at, just the reward
+                )
             else:
                 target = reward + (
                     discount * best_value(new_state)
                 )  # HINT: reward, plus discount times the best value of the NEW state
-            Q[state][action] += (
-                learning_rate * target - old
-            )  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+            Q[state][action] += learning_rate * (target - old)
+              # HINT: nudge old toward target by the learning rate - page 5's rule, one line
 
-            state = new_state
-        returns.append(total_reward)  # NEW: record the finished episode's return
-    return returns
+            state = new_state  # step onto the new cell and loop again
+            steps +=1
+
+    # follow the finished policy from the start corner
+    state = 0
+    path = [0]
+    done = False
+    steps = 0
+    while not done and steps < 200:
+        state = step(state, best_action(state))
+        reward, done = result(state)
+        path.append(state)
+        steps = steps + 1
+    return path
 
 
 # random.seed(0)                         # so you get the same numbers as below
@@ -309,10 +392,13 @@ def train_and_track(episodes, start_epsilon, decay=False):
 # returns = train_and_track(2000, 0.1)
 # print("first 15 returns:", returns[:15])
 
-random.seed(0)
-fixed = train_and_track(2000, 0.1)  # fixed epsilon = 0.1
-random.seed(0)
-decayed = train_and_track(2000, 0.3, decay=True)  # starts at 0.3, fades to 0
+# random.seed(0)
+# fixed = train_and_track(2000, 0.1)  # fixed epsilon = 0.1
+# random.seed(0)
+# decayed = train_and_track(2000, 0.3, decay=True)  # starts at 0.3, fades to 0
 
-print("fixed   epsilon, last-100 average return:", sum(fixed[-100:]) / 100)
-print("decayed epsilon, last-100 average return:", sum(decayed[-100:]) / 100)
+# print("fixed   epsilon, last-100 average return:", sum(fixed[-100:]) / 100)
+# print("decayed epsilon, last-100 average return:", sum(decayed[-100:]) / 100)
+
+random.seed(0)
+print(run_gridworld(5, 24, 12, 5000))
