@@ -30,6 +30,7 @@ jobs:
         uses: astral-sh/ruff-action@v4.1.0
         with:
           args: "--version"
+          version: "latest"
 
       - name: Analyze with ruff (auto-fix fixable issues)
         run: ruff check --fix --exit-zero .
