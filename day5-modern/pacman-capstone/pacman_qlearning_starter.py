@@ -28,7 +28,10 @@ def make_sure_state_exists(state):
     """
     # TODO: if state is not in Q yet, give it an inner dictionary
     # with all four ACTIONS starting at 0.0.
-    pass
+    if state not in Q:
+        Q[state] = {}
+        for action in ACTIONS:
+            Q[state][action] = 0.0
 
 def best_value(state):
     """Returns the highest Q-value available in this state.
@@ -41,7 +44,7 @@ def best_value(state):
     """
     make_sure_state_exists(state)
     # TODO: paste your best_value from GridWorld (unchanged!)
-    pass
+    return max(Q[state][a] for a in ACTIONS)
 
 def best_action(state):
     """Returns the action with the highest Q-value in this state.
@@ -54,7 +57,13 @@ def best_action(state):
     """
     make_sure_state_exists(state)
     # TODO: paste your best_action from GridWorld (unchanged!)
-    pass
+    best_a = "up"  # start by assuming "up" is best
+    best = Q[state]["up"]
+    for a in ACTIONS:
+        if Q[state][a] > best:  # found a better one?
+            best = Q[state][a]  # remember its value
+            best_a = a  # HINT: AND remember which action owned it
+    return best_a  # HINT: hand back the NAME, not the number
 
 
 # --- training ------------------------------------------------------------
@@ -72,7 +81,27 @@ for episode in range(20000):
         # TODO: your GridWorld training loop, almost unchanged. The
         # three differences are described on the site page; the lines
         # themselves are yours to bring over. Remember: break when done.
-        pass
+        if random.random() < epsilon:
+            action = random.choice(ACTIONS)  # HINT: explore - a random choice from the actions list
+        else:
+            action = best_action(state)  # HINT: exploit - this state's best known move
+
+        # new_state = step(state, action)  # HINT: where does this action land us? (your step function)
+        new_state, reward, done = world.step(action)  # HINT: judge the landing - your result function returns both at once
+        # the update rule from page 5, in code
+        old = Q[state][action]
+        if done:
+            target = reward  # HINT: terminal move - no future to look at, just the reward
+            
+        else:
+            target = reward + discount * best_value(new_state) - old  # HINT: reward, plus discount times the best value of the NEW state
+
+        Q[state][action] += learning_rate * (target - old)  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+
+        state = new_state  # step onto the new cell and loop again
+        if done:
+            break
+            # steps +=1
 
 print("states the agent has seen:", len(Q))   # expect roughly 125-150
 
