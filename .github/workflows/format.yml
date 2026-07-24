@@ -4,6 +4,8 @@ name: Format Python
 # (avoids the workflow re-triggering on its own force pushes).
 on:
   push:
+    branches:
+      - main
     branches-ignore:
       - format
 
