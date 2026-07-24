@@ -469,10 +469,8 @@ def feature_bounds(data, num_features):
         low = data[0][i]
         high = data[0][i]
         for row in data:
-            if row[i] < low:
-                low = row[i]
-            if row[i] > high:
-                high = row[i]
+            low = min(low, row[i])
+            high = max(high, row[i])
         bounds.append([low, high])
     return bounds
 
@@ -679,33 +677,28 @@ def precision_recall(pairs, species):
     and false negatives for `species`, then form the two ratios. Guard
     the denominators so a species that never appears gives 0.0.
     """
-    pass
 
 
 # --- B.1: KNN regression ----------------------------------------------
 def knn_regress(training, query, k, num_features):
     """Predict a number: knn_n, but AVERAGE the k nearest neighbors'
     numbers (at row[num_features]) instead of voting on labels."""
-    pass
 
 
 def mean_error(training, test, k, num_features):
     """Mean absolute error: average size of the miss over the test set."""
-    pass
 
 
 # --- B.2: draw the decision map ---------------------------------------
 def draw_map(training, k):
     """Sweep a grid of the petal space and print KNN's answer per cell.
     Petal width high->low (rows), petal length low->high (cols)."""
-    pass
 
 
 # --- B.3: anomaly detection -------------------------------------------
 def strangeness(training, query, num_features):
     """Smallest distance_n from the query to any training flower
     (the 'best so far' scan, hunting a minimum)."""
-    pass
 
 
 # --- B.4: condensed nearest neighbors ---------------------------------
@@ -713,32 +706,27 @@ def condense(training, num_features):
     """Keep only the border flowers a 1-NN classifier needs (Hart 1968):
     sweep, add every flower the store misclassifies, until a pass adds
     nothing; return the store."""
-    pass
 
 
 # --- B.5: KNN recommender ---------------------------------------------
 def taste_distance(a, b):
     """Distance between two people, ONLY on movies they have both rated
     (skip any position where either rating is 0)."""
-    pass
 
 
 def nearest_people(ratings, me_name, k):
     """The k people whose ratings are closest to me_name's."""
-    pass
 
 
 def recommend(ratings, me_name, k):
     """For each movie I have not seen (0), average my k nearest people's
     ratings; return the unseen movie with the highest predicted score."""
-    pass
 
 
 # --- B.6: KNN imputation ----------------------------------------------
 def impute_mass(penguins, k):
     """Fill the one penguin whose body_mass is None by averaging the k
     nearest COMPLETE penguins, compared on the first three features."""
-    pass
 
 
 # print("two setosas:", distance(training[0], training[1]))

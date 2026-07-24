@@ -31,8 +31,8 @@
 #         return False
 
 string = ""
-for i in range(0, 4):
-    for j in range(0, 4):
+for i in range(4):
+    for j in range(4):
         if (i + j) % 2 == 0:
             string += "#"
         else:

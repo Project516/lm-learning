@@ -12,11 +12,13 @@
 #      step() and result() calls
 
 import random
-from pacman_world import PacmanWorld, ACTIONS, play, features, MOVES, DOT_SPOTS, is_wall
+
+from pacman_world import ACTIONS, DOT_SPOTS, MOVES, PacmanWorld, features, is_wall, play
 
 world = PacmanWorld()
 
 Q = {}
+
 
 def make_sure_state_exists(state):
     """Adds a state to the Q-table the first time it is ever seen.
@@ -33,6 +35,7 @@ def make_sure_state_exists(state):
         for action in ACTIONS:
             Q[state][action] = 0.0
 
+
 def best_value(state):
     """Returns the highest Q-value available in this state.
 
@@ -45,6 +48,7 @@ def best_value(state):
     make_sure_state_exists(state)
     # TODO: paste your best_value from GridWorld (unchanged!)
     return max(Q[state][a] for a in ACTIONS)
+
 
 def best_action(state):
     """Returns the action with the highest Q-value in this state.
@@ -74,36 +78,46 @@ epsilon = 0.2
 for episode in range(20000):
     state = world.reset()
     make_sure_state_exists(state)  # the start state may be brand new - it must
-                                   # exist before anything looks it up (the very
-                                   # first move can be an exploration move!)
+    # exist before anything looks it up (the very
+    # first move can be an exploration move!)
     done = False
-    for move in range(100):        # safety cap: no episode runs forever
+    for move in range(100):  # safety cap: no episode runs forever
         # TODO: your GridWorld training loop, almost unchanged. The
         # three differences are described on the site page; the lines
         # themselves are yours to bring over. Remember: break when done.
         if random.random() < epsilon:
-            action = random.choice(ACTIONS)  # HINT: explore - a random choice from the actions list
+            action = random.choice(
+                ACTIONS
+            )  # HINT: explore - a random choice from the actions list
         else:
             action = best_action(state)  # HINT: exploit - this state's best known move
 
         # new_state = step(state, action)  # HINT: where does this action land us? (your step function)
-        new_state, reward, done = world.step(action)  # HINT: judge the landing - your result function returns both at once
+        new_state, reward, done = world.step(
+            action
+        )  # HINT: judge the landing - your result function returns both at once
         # the update rule from page 5, in code
         old = Q[state][action]
         if done:
-            target = reward  # HINT: terminal move - no future to look at, just the reward
-            
-        else:
-            target = reward + discount * best_value(new_state)  # HINT: reward, plus discount times the best value of the NEW state
+            target = (
+                reward  # HINT: terminal move - no future to look at, just the reward
+            )
 
-        Q[state][action] += learning_rate * (target - old)  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
+        else:
+            target = reward + discount * best_value(
+                new_state
+            )  # HINT: reward, plus discount times the best value of the NEW state
+
+        Q[state][action] += (
+            learning_rate * (target - old)
+        )  # HINT: nudge old toward target by the learning rate - page 5's rule, one line
 
         state = new_state  # step onto the new cell and loop again
         if done:
             break
             # steps +=1
 
-print("states the agent has seen:", len(Q))   # expect roughly 125-150
+print("states the agent has seen:", len(Q))  # expect roughly 125-150
 
 
 # --- watch your creation play --------------------------------------------
@@ -119,18 +133,23 @@ def choose(world):
     return best_action(world.get_state())
 
 
-weights = [0.0, 0.0, 0.0, 0.0]   # [bias, blocked, toward-dot, ghost-danger]
-learning_rate = 0.01             # tiny! see the warning below
+weights = [0.0, 0.0, 0.0, 0.0]  # [bias, blocked, toward-dot, ghost-danger]
+learning_rate = 0.01  # tiny! see the warning below
 discount = 0.9
 epsilon = 0.1
 
+
 def action_feats(feats, i):
     """The 3 features describing action number i (PROVIDED)."""
-    return [feats[i*3], feats[i*3+1], feats[i*3+2]]
+    return [feats[i * 3], feats[i * 3 + 1], feats[i * 3 + 2]]
+
 
 def q_value(f3):
     """Q for one action = the weighted sum of its features."""
-    return weights[0] * 1 + weights[1] * f3[0] + weights[2] * f3[1] + weights[3] * f3[2]    # HINT: it is your perceptron's score(), for a 3-feature input plus the bias
+    return (
+        weights[0] * 1 + weights[1] * f3[0] + weights[2] * f3[1] + weights[3] * f3[2]
+    )  # HINT: it is your perceptron's score(), for a 3-feature input plus the bias
+
 
 def best_index(feats):
     """Which of the four actions scores highest right now? (PROVIDED)"""
@@ -142,6 +161,7 @@ def best_index(feats):
             best = v
             best_i = i
     return best_i
+
 
 # PART 1: Watch the brain settle - log weights every 100 episodes
 for episode in range(1000):
@@ -160,30 +180,36 @@ for episode in range(1000):
             target = reward
         else:
             new_feats = features(world)
-            target = reward + discount * q_value(action_feats(new_feats, best_index(new_feats)))
+            target = reward + discount * q_value(
+                action_feats(new_feats, best_index(new_feats))
+            )
         error = target - old_q
 
         # Q-learning's target, driven home by the perceptron's update:
-        weights[0] = weights[0] + learning_rate * error * 1    # HINT: your Day 3 perceptron update, weights[k] + learning_rate * error * (this weight's input); the bias input is always 1
+        weights[0] = (
+            weights[0] + learning_rate * error * 1
+        )  # HINT: your Day 3 perceptron update, weights[k] + learning_rate * error * (this weight's input); the bias input is always 1
         weights[1] = weights[1] + learning_rate * error * f3[0]
         weights[2] = weights[2] + learning_rate * error * f3[1]
         weights[3] = weights[3] + learning_rate * error * f3[2]
         if done:
             break
-    
+
     # Part 1: Print brain every 100 episodes
     if episode % 100 == 0:
         print("episode", episode, "brain:", [round(w, 1) for w in weights])
 
 print("your agent's entire brain:", [round(w, 1) for w in weights])
 
+
 def approx_move(world):
     return ACTIONS[best_index(features(world))]
+
 
 def my_action_feats(world, i):
     """The 3 provided features for action i, plus one invented: eats a dot?"""
     base = features(world)
-    f = [base[i*3], base[i*3+1], base[i*3+2]]
+    f = [base[i * 3], base[i * 3 + 1], base[i * 3 + 2]]
     move = MOVES[ACTIONS[i]]
     land = (world.pac[0] + move[0], world.pac[1] + move[1])
     if is_wall(land):
@@ -194,15 +220,18 @@ def my_action_feats(world, i):
             eats = 1
     return f + [eats]
 
+
 # Test baseline (3-feature agent)
-print("\n" + "="*50)
+print("\n" + "=" * 50)
 print("PART 1 NARRATION: The ghost-danger weight forms first, dropping to ~-15")
-print("The blocked penalty hits around episode 100. Toward-dot and bias drift throughout.")
+print(
+    "The blocked penalty hits around episode 100. Toward-dot and bias drift throughout."
+)
 print("This tells us: immediate survival matters most, then navigation planning.")
-print("="*50)
-print("\n" + "="*50)
+print("=" * 50)
+print("\n" + "=" * 50)
 print("PART 2: Testing eats-dot feature (5 runs)")
-print("="*50)
+print("=" * 50)
 
 baseline_results = []
 for run in range(5):
@@ -219,11 +248,25 @@ print(f"Baseline average: {sum(baseline_results) / len(baseline_results):.1f}")
 print()
 
 # Re-initialize for eats-dot test
-weights_eats = [0.0, 0.0, 0.0, 0.0, 0.0]  # [bias, blocked, toward-dot, ghost-danger, eats-dot]
+weights_eats = [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+]  # [bias, blocked, toward-dot, ghost-danger, eats-dot]
+
 
 def q_value_eats(f4):
     """Q for one action with eats-dot feature = weighted sum."""
-    return weights_eats[0] * 1 + weights_eats[1] * f4[0] + weights_eats[2] * f4[1] + weights_eats[3] * f4[2] + weights_eats[4] * f4[3]
+    return (
+        weights_eats[0] * 1
+        + weights_eats[1] * f4[0]
+        + weights_eats[2] * f4[1]
+        + weights_eats[3] * f4[2]
+        + weights_eats[4] * f4[3]
+    )
+
 
 def best_index_eats(world):
     """Which of the four actions scores highest? Uses my_action_feats."""
@@ -236,8 +279,10 @@ def best_index_eats(world):
             best_i = i
     return best_i
 
+
 def approx_move_eats(world):
     return ACTIONS[best_index_eats(world)]
+
 
 # Train with eats-dot feature
 epsilon_eats = 0.1
@@ -257,9 +302,11 @@ for episode in range(1000):
         if done:
             target = reward
         else:
-            target = reward + discount * q_value_eats(my_action_feats(world_train, best_index_eats(world_train)))
+            target = reward + discount * q_value_eats(
+                my_action_feats(world_train, best_index_eats(world_train))
+            )
         error = target - old_q
-        
+
         weights_eats[0] = weights_eats[0] + learning_rate_eats * error * 1
         weights_eats[1] = weights_eats[1] + learning_rate_eats * error * f4[0]
         weights_eats[2] = weights_eats[2] + learning_rate_eats * error * f4[1]
@@ -283,17 +330,22 @@ for run in range(5):
 
 avg_eats = sum(eats_dot_results) / len(eats_dot_results)
 print(f"Eats-dot average: {avg_eats:.1f}")
-print("# feature: eats-dot. runs: " + str(eats_dot_results) + ". helped: no. hurt: sometimes. verdict: KILLED.")
+print(
+    "# feature: eats-dot. runs: "
+    + str(eats_dot_results)
+    + ". helped: no. hurt: sometimes. verdict: KILLED."
+)
 print()
 
-print("="*50)
+print("=" * 50)
 print("PART 3: Testing distance-to-ghost feature (5 runs)")
-print("="*50)
+print("=" * 50)
+
 
 def my_action_feats_ghost_dist(world, i):
     """The 3 provided features for action i, plus distance to nearest ghost."""
     base = features(world)
-    f = [base[i*3], base[i*3+1], base[i*3+2]]
+    f = [base[i * 3], base[i * 3 + 1], base[i * 3 + 2]]
     move = MOVES[ACTIONS[i]]
     land = (world.pac[0] + move[0], world.pac[1] + move[1])
     if is_wall(land):
@@ -305,12 +357,27 @@ def my_action_feats_ghost_dist(world, i):
     ghost_dist = min_dist / 15.0
     return f + [ghost_dist]
 
+
 # Re-initialize for ghost-distance test
-weights_ghost = [0.0, 0.0, 0.0, 0.0, 0.0]  # [bias, blocked, toward-dot, ghost-danger, ghost-dist]
+weights_ghost = [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+]  # [bias, blocked, toward-dot, ghost-danger, ghost-dist]
+
 
 def q_value_ghost(f4):
     """Q for one action with ghost-distance feature."""
-    return weights_ghost[0] * 1 + weights_ghost[1] * f4[0] + weights_ghost[2] * f4[1] + weights_ghost[3] * f4[2] + weights_ghost[4] * f4[3]
+    return (
+        weights_ghost[0] * 1
+        + weights_ghost[1] * f4[0]
+        + weights_ghost[2] * f4[1]
+        + weights_ghost[3] * f4[2]
+        + weights_ghost[4] * f4[3]
+    )
+
 
 def best_index_ghost(world):
     """Which of the four actions scores highest? Uses ghost-distance features."""
@@ -323,8 +390,10 @@ def best_index_ghost(world):
             best_i = i
     return best_i
 
+
 def approx_move_ghost(world):
     return ACTIONS[best_index_ghost(world)]
+
 
 # Train with ghost-distance feature
 for episode in range(1000):
@@ -342,9 +411,11 @@ for episode in range(1000):
         if done:
             target = reward
         else:
-            target = reward + discount * q_value_ghost(my_action_feats_ghost_dist(world_train, best_index_ghost(world_train)))
+            target = reward + discount * q_value_ghost(
+                my_action_feats_ghost_dist(world_train, best_index_ghost(world_train))
+            )
         error = target - old_q
-        
+
         weights_ghost[0] = weights_ghost[0] + learning_rate_eats * error * 1
         weights_ghost[1] = weights_ghost[1] + learning_rate_eats * error * f4[0]
         weights_ghost[2] = weights_ghost[2] + learning_rate_eats * error * f4[1]
@@ -371,20 +442,24 @@ print(f"Ghost-distance average: {avg_ghost:.1f}")
 print()
 
 # Feature engineering lab log
-print("="*50)
+print("=" * 50)
 print("FEATURE ENGINEERING LAB LOG")
-print("="*50)
+print("=" * 50)
 baseline_avg = sum(baseline_results) / len(baseline_results)
 print(f"Baseline (3-feature):      {baseline_results} avg={baseline_avg:.1f}")
-print(f"# feature: eats-dot.       {eats_dot_results} avg={sum(eats_dot_results)/len(eats_dot_results):.1f}")
-print(f"#   helped: no. hurt: sometimes. verdict: KILLED.")
+print(
+    f"# feature: eats-dot.       {eats_dot_results} avg={sum(eats_dot_results) / len(eats_dot_results):.1f}"
+)
+print("#   helped: no. hurt: sometimes. verdict: KILLED.")
 print(f"# feature: distance-to-ghost. {ghost_dist_results} avg={avg_ghost:.1f}")
 if any(w < 0 for w in ghost_dist_results):
-    print(f"#   verdict: KILLED - causes occasional collapses.")
+    print("#   verdict: KILLED - causes occasional collapses.")
 elif avg_ghost <= baseline_avg:
     print(f"#   verdict: KILLED - no improvement over baseline ({baseline_avg:.1f}).")
 else:
-    print(f"#   verdict: KEPT - improved to {avg_ghost:.1f} from baseline {baseline_avg:.1f}.")
+    print(
+        f"#   verdict: KEPT - improved to {avg_ghost:.1f} from baseline {baseline_avg:.1f}."
+    )
 
 # Un-comment this line when your TODOs above are filled in:
 # play(world, choose, delay=0.3)
