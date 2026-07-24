@@ -298,11 +298,9 @@ def my_action_feats_ghost_dist(world, i):
     land = (world.pac[0] + move[0], world.pac[1] + move[1])
     if is_wall(land):
         land = world.pac
-    # Calculate distance to nearest ghost
-    min_dist = 100
-    for ghost in world.ghost():
-        dist = abs(land[0] - ghost[0]) + abs(land[1] - ghost[1])
-        min_dist = min(min_dist, dist)
+    # Calculate distance to the ghost
+    ghost = world.ghost()
+    min_dist = abs(land[0] - ghost[0]) + abs(land[1] - ghost[1])
     # Normalize to 0-1 range (max distance in small maze is ~15)
     ghost_dist = min_dist / 15.0
     return f + [ghost_dist]
