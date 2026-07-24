@@ -1,13 +1,10 @@
 name: Format Python
 
-# Run on every push, except pushes to the format branch itself
-# (avoids the workflow re-triggering on its own force pushes).
+# Run on every push to default branch
 on:
   push:
     branches:
       - master
-    branches-ignore:
-      - format
 
 permissions:
   contents: write
