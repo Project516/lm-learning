@@ -21,9 +21,9 @@ print(4 - 2 * 6)  # -8
 print((4 - 2) * 6)  # 12
 
 # data types
-print(type(5))  # <class 'int'>
-print(type(5.0))  # <class 'float'>
-print(type("five"))  # <class 'str'>
+print(int)  # <class 'int'>
+print(float)  # <class 'float'>
+print(str)  # <class 'str'>
 
 # strings != numbers
 print(5 + 5)  # adds numbers, gives 10

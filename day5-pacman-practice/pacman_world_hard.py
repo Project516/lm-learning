@@ -24,9 +24,9 @@ import time
 ACTIONS = ["up", "down", "left", "right"]
 
 MOVES = {
-    "up":    (-1, 0),
-    "down":  (1, 0),
-    "left":  (0, -1),
+    "up": (-1, 0),
+    "down": (1, 0),
+    "left": (0, -1),
     "right": (0, 1),
 }
 
@@ -163,7 +163,7 @@ class PacmanWorldHard:
             return self.get_state(), -50, True
 
         # eat a dot?
-        reward = -1                       # every step costs a little
+        reward = -1  # every step costs a little
         for i in range(len(DOT_SPOTS)):
             if self.eaten[i] == 0 and self.pac == DOT_SPOTS[i]:
                 self.eaten[i] = 1
@@ -244,7 +244,11 @@ def features(world):
         else:
             feats.append(0)
 
-        if dot is not None and not is_wall(land) and manhattan(land, dot) < manhattan(world.pac, dot):
+        if (
+            dot is not None
+            and not is_wall(land)
+            and manhattan(land, dot) < manhattan(world.pac, dot)
+        ):
             feats.append(1)
         else:
             feats.append(0)
@@ -271,7 +275,7 @@ def play(world, choose_action, delay=0.3, silent=False):
     """
     world.reset()
     total = 0
-    for turn in range(60):                # a game never runs forever
+    for turn in range(60):  # a game never runs forever
         if not silent:
             print("turn", turn, "  score so far:", total)
             world.render()

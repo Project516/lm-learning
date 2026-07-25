@@ -9,14 +9,13 @@
 # The building was the fun part, and you already did it. Today you are
 # not building a model. You are auditing one, and breaking one.
 
-import random
-
 # ======================================================================
 # LAB 1: AUDIT A BIASED MODEL (ethics section 4)
 # ======================================================================
 # Provided: the Day 2 classifier, exactly as you built it on Tuesday.
-
 import math
+import random
+
 
 def distance(row_a, row_b):
     """Straight-line distance between two flowers' features (PROVIDED)."""
@@ -25,6 +24,7 @@ def distance(row_a, row_b):
         diff = row_a[i] - row_b[i]
         total = total + diff * diff
     return math.sqrt(total)
+
 
 def knn_predict(training, query, k):
     """Predicts a species by letting the k closest flowers vote (PROVIDED)."""
@@ -44,6 +44,7 @@ def knn_predict(training, query, k):
             best_label = label
     return best_label
 
+
 def accuracy(training, test, k):
     """Fraction of test rows predicted correctly (PROVIDED)."""
     correct = 0
@@ -52,22 +53,33 @@ def accuracy(training, test, k):
             correct = correct + 1
     return correct / len(test)
 
+
 # The model under audit: trained on a world where versicolor barely
 # exists (the skewed data from Day 2, section 10).
 skewed_training = [
-    [1.4, 0.2, "setosa"], [1.3, 0.2, "setosa"], [1.5, 0.2, "setosa"],
-    [1.7, 0.4, "setosa"], [1.4, 0.3, "setosa"],
-    [6.0, 2.5, "virginica"], [5.8, 1.8, "virginica"], [6.3, 1.8, "virginica"],
-    [5.5, 2.1, "virginica"], [5.1, 1.9, "virginica"],
-    [4.5, 1.5, "versicolor"]      # the only versicolor left
+    [1.4, 0.2, "setosa"],
+    [1.3, 0.2, "setosa"],
+    [1.5, 0.2, "setosa"],
+    [1.7, 0.4, "setosa"],
+    [1.4, 0.3, "setosa"],
+    [6.0, 2.5, "virginica"],
+    [5.8, 1.8, "virginica"],
+    [6.3, 1.8, "virginica"],
+    [5.5, 2.1, "virginica"],
+    [5.1, 1.9, "virginica"],
+    [4.5, 1.5, "versicolor"],  # the only versicolor left
 ]
 
 # The honest audit set: versicolor still exists in the WORLD, even if
 # it barely exists in the model's training data.
 audit_set = [
-    [1.5, 0.2, "setosa"], [1.6, 0.3, "setosa"],
-    [4.2, 1.3, "versicolor"], [4.4, 1.4, "versicolor"], [4.6, 1.4, "versicolor"],
-    [6.1, 2.3, "virginica"], [5.7, 2.0, "virginica"]
+    [1.5, 0.2, "setosa"],
+    [1.6, 0.3, "setosa"],
+    [4.2, 1.3, "versicolor"],
+    [4.4, 1.4, "versicolor"],
+    [4.6, 1.4, "versicolor"],
+    [6.1, 2.3, "virginica"],
+    [5.7, 2.0, "virginica"],
 ]
 
 # The headline number every press release would quote:
@@ -98,6 +110,7 @@ print("overall accuracy:", accuracy(skewed_training, audit_set, 3))
 # Provided: the Day 4 GridWorld and Q-learning loop, exactly as you
 # built them yesterday, already pointed at the package world.
 
+
 def step(state, action):
     """Moves the agent one cell, respecting the edges (PROVIDED)."""
     row = state // 3
@@ -112,11 +125,13 @@ def step(state, action):
         col = col + 1
     return row * 3 + col
 
+
 # THE CLIENT'S SPEC: "pick up the package at cell 6, then deliver
 # yourself to the goal at cell 8." Your pricing decision is `bonus`.
-bonus = 5     # <-- TODO (Lab 2): this is the number you red-team.
-              # Start at 5 and run the file: watch the agent find the
-              # infinite money glitch. Then hunt for the honest price.
+bonus = 5  # <-- TODO (Lab 2): this is the number you red-team.
+# Start at 5 and run the file: watch the agent find the
+# infinite money glitch. Then hunt for the honest price.
+
 
 def result_package(new_state):
     """Judges a landing in the package world (PROVIDED)."""
@@ -125,9 +140,10 @@ def result_package(new_state):
     elif new_state == 4:
         return -10, True
     elif new_state == 6:
-        return -1 + bonus, False    # the pickup pays on EVERY visit...
+        return -1 + bonus, False  # the pickup pays on EVERY visit...
     else:
         return -1, False
+
 
 actions = ["up", "down", "left", "right"]
 
@@ -137,13 +153,14 @@ for state in range(9):
     for a in actions:
         Q[state][a] = 0.0
 
+
 def best_value(state):
     """Highest quality estimate in a state (PROVIDED)."""
     best = Q[state]["up"]
     for a in actions:
-        if Q[state][a] > best:
-            best = Q[state][a]
+        best = max(best, Q[state][a])
     return best
+
 
 def best_action(state):
     """The action the agent currently believes is best (PROVIDED)."""
@@ -154,6 +171,7 @@ def best_action(state):
             best = Q[state][a]
             best_a = a
     return best_a
+
 
 # Training (PROVIDED): the Day 4 loop, pointed at result_package.
 learning_rate = 0.5

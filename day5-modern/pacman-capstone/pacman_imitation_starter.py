@@ -4,8 +4,9 @@
 # You will train four perceptrons - one per direction - on recorded
 # games of an expert player, then let the most confident one drive.
 
-from pacman_world import PacmanWorld, ACTIONS, features, play
 from expert_data import expert_data
+from pacman_world import ACTIONS, PacmanWorld, features, play
+
 
 # --- Step 1: your Perceptron from Day 3, plus ONE new method ----------
 class Perceptron:
@@ -80,7 +81,6 @@ class Perceptron:
                     self.weights[i + 1] += self.learning_rate * error * features[i]
 
 
-
 # --- Step 2: train one perceptron per direction ------------------------
 # For the "up" perceptron, relabel the expert data: 1 when the expert
 # chose up, 0 when it chose anything else. Same idea for each direction.
@@ -89,14 +89,14 @@ perceptrons = {}
 for action in ACTIONS:
     data = []
     for row in expert_data:
-        feats = row[:-1]       # the 12 features
-        chosen = row[-1]       # the move the expert made
+        feats = row[:-1]  # the 12 features
+        chosen = row[-1]  # the move the expert made
         # TODO: relabel this row for THIS direction (1 if the expert
         # chose it, else 0) and add it to data.
         # data.append(feats)
         if chosen == action:
             data.append(feats + [1])
-            
+
         else:
             data.append(feats + [0])
 
@@ -130,7 +130,6 @@ def imitation_move(world):
             best_action = action
 
     return best_action
-        
 
 
 # --- Step 4: watch your creation play -----------------------------------
@@ -149,10 +148,12 @@ play(world, imitation_move, delay=0.012)
 # still zero.
 # ======================================================================
 
+
 def check(label, got, expected):
     mark = "PASS" if got == expected else "FAIL"
     extra = "" if got == expected else "   (got " + repr(got) + ")"
     print(mark, label, extra)
+
 
 wins = 0
 for game in range(20):
